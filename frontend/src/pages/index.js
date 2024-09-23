@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer'
 import SearchBar from '../components/SearchBar';
@@ -11,6 +11,30 @@ import { Typography, Stack, Box, Grid } from '@mui/material';
 
 const HomePage = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [message, setMessage] = useState('');
+
+     useEffect(() => {
+    const fetchMessage = async () => {
+      try {
+        const response = await fetch('https://pizza-ordering-service-1.onrender.com', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.text();
+        setMessage(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchMessage();
+  }, []);
+  console.log("TEST", message)
 
     const pizzas = [
         { name: 'Margherita', toppings: ['Tomato', 'Mozzarella', 'Basil'], price: 10 },
@@ -28,96 +52,97 @@ const HomePage = () => {
     return (
         <>
             <Navbar />
-            <Stack 
-                spacing={0} // Remove spacing between children
+           <Stack 
+            spacing={0} // Remove spacing between children
+            sx={{ 
+                background: 'linear-gradient(to bottom, #FEEFDF, #FEE1C4, #FED0A1, #FFF0E2, #FFE3C6)', // Linear gradient background
+                p: 0, // Remove padding
+                height: '100vh',
+                flexDirection: { xs: 'column', md: 'row-reverse' }, // Move image to the right
+            }}
+        >
+            <Box 
                 sx={{ 
-                    bgcolor: '#FDE2B2', // Background color matching pizza theme
+                    flex: 1, 
+                    position: 'relative', 
+                    height: '100%', 
+                    overflow: 'hidden', 
+                    width: '100%',
+                    m: 0, // Remove margin
                     p: 0, // Remove padding
-                    position: 'relative',
-                    height: '100vh',
-                    flexDirection: { xs: 'column', md: 'row-reverse' }, // Move image to the right
                 }}
             >
-                <Box 
-                    sx={{ 
-                        flex: 1, 
-                        position: 'relative', 
-                        height: '100%', 
-                        overflow: 'hidden', 
-                        width: '100%',
-                        m: 0, // Remove margin
-                        p: 0, // Remove padding
+                <Image 
+                    src="/images/pizza-image.png" 
+                    alt="Pizza Image" 
+                    layout="fill"
+                    objectFit="cover" // Cover the entire right side
+                    style={{
+                        filter: 'blur(4px)', // Mild blur for blending
+                        opacity: 0.7, // Lower opacity for a subtle look
+                        margin: 0, // Ensure no margin on image
+                        padding: 0, // Ensure no padding on image
+                        boxShadow: 'none', // Remove any shadow if applicable
                     }}
+                />
+            </Box>
+
+            <Box 
+                sx={{ 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'center', 
+                    textAlign: 'center',
+                    gap: 2,
+                    px: { xs: 0, md: 4 }, // Remove horizontal padding for mobile
+                    pt: 0, // Remove top padding
+                    m: 0, // Remove margin
+                }}
+            >
+                <Typography 
+                    variant="h1" 
+                    sx={{ 
+                        fontSize: { xs: '2.5rem', md: '4rem' },
+                        color: '#C67C04', // Darker orange tone matching the theme
+                        fontWeight: '700',
+                    }}
+                    gutterBottom
                 >
-                    <Image 
-                        src="/images/pizza-image.png" 
-                        alt="Pizza Image" 
-                        layout="fill"
-                        objectFit="cover" // Cover the entire right side
-                        style={{
-                            filter: 'blur(4px)', // Mild blur for blending
-                            opacity: 0.7, // Lower opacity for a subtle look
-                        }}
+                    Order Us
+                </Typography>
+                <Typography 
+                    variant="h6" 
+                    sx={{ 
+                        fontSize: { xs: '1rem', md: '1.25rem' }, 
+                        color: '#804C1B', // Muted brown tone
+                    }}
+                    gutterBottom
+                >
+                    Choose from our wide variety of hand-crafted pizzas made with fresh ingredients and lots of love.
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', m: 0, p: 0 }}>
+                    <SearchBar 
+                        placeholder="Search for pizzas..." 
+                        value={searchQuery} 
+                        onChange={handleSearch} 
+                        sx={{ 
+                            bgcolor: 'white', // Set background to white
+                            width: '100%', 
+                            borderRadius: '50px',
+                            border: '2px solid #C67C04', // Border in theme color
+                            maxWidth: '500px',
+                            m: 0, // Remove margin
+                            px: 0, // Remove horizontal padding
+                            py: 1.5,
+                            '& input': {
+                                bgcolor: 'white', // Ensure input is white
+                            },
+                        }} 
                     />
                 </Box>
-
-                <Box 
-                    sx={{ 
-                        flex: 1, 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        justifyContent: 'center', 
-                        textAlign: 'center',
-                        gap: 2,
-                        px: { xs: 0, md: 4 }, // Remove horizontal padding for mobile
-                        pt: 0, // Remove top padding
-                        m: 0, // Remove margin
-                    }}
-                >
-                    <Typography 
-                        variant="h1" 
-                        sx={{ 
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            color: '#C67C04', // Darker orange tone matching the theme
-                            fontWeight: '700',
-                        }}
-                        gutterBottom
-                    >
-                        Order Us
-                    </Typography>
-                    <Typography 
-                        variant="h6" 
-                        sx={{ 
-                            fontSize: { xs: '1rem', md: '1.25rem' }, 
-                            color: '#804C1B', // Muted brown tone
-                        }}
-                        gutterBottom
-                    >
-                        Choose from our wide variety of hand-crafted pizzas made with fresh ingredients and lots of love.
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', m: 0, p: 0 }}>
-                        <SearchBar 
-                            placeholder="Search for pizzas..." 
-                            value={searchQuery} 
-                            onChange={handleSearch} 
-                            sx={{ 
-                                bgcolor: 'white', // Set background to white
-                                width: '100%', 
-                                borderRadius: '50px',
-                                border: '2px solid #C67C04', // Border in theme color
-                                maxWidth: '500px',
-                                m: 0, // Remove margin
-                                px: 0, // Remove horizontal padding
-                                py: 1.5,
-                                '& input': {
-                                    bgcolor: 'white', // Ensure input is white
-                                },
-                            }} 
-                        />
-                    </Box>
-                </Box>
-            </Stack>
-            
+            </Box>
+        </Stack>
             <Typography variant="h1" 
                         sx={{ 
                             fontSize: { xs: '2.5rem', md: '4rem' },
