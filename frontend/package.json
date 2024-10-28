@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,16 +12,19 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.0",
-    "@mui/icons-material": "^6.1.1",
-    "@mui/material": "^6.1.1",
+    "@mui/icons-material": "^6.1.4",
+    "@mui/material": "^6.1.4",
+    "@tanstack/react-table": "^8.20.5",
     "axios": "^1.7.7",
     "material-react-table": "^3.0.1",
     "next": "14.2.13",
+    "next-auth": "^4.24.8",
     "nodemon": "^3.1.7",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-slick": "^0.30.2",
+    "react-table": "^7.8.0",
     "slick-carousel": "^1.8.1",
     "zod": "^3.23.8"
   },

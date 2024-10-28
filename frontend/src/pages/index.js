@@ -1,203 +1,93 @@
 import { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer'
-import SearchBar from '../components/SearchBar';
-import FeaturedPizzaCarousel from '../components/FeaturedPizzaCarousel';
-import PizzaPaper from '../components/PizzaPaper'
-import TopRestaurants from '../components/TopRestaurants';
-import samplePizzas from '../data/samplePizzas';
-import Image from 'next/image';
-import { Typography, Stack, Box, Grid } from '@mui/material';
+import { getAllPizzas } from '../api/pizzaApi';
+import {
+  Box,
+  Typography,
+  Divider,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  Container,
+} from '@mui/material';
 
-const HomePage = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [message, setMessage] = useState('');
+const Home = () => {
+  const [groupedPizzas, setGroupedPizzas] = useState({});
 
-     useEffect(() => {
-    const fetchMessage = async () => {
+  useEffect(() => {
+    const fetchPizzas = async () => {
       try {
-        const response = await fetch('https://pizza-ordering-service-1.onrender.com', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.text();
-        setMessage(data);
+        const allPizzaData = await getAllPizzas();
+        const allPizzas = allPizzaData.data;
+
+        // Group pizzas by restaurant_id
+        const pizzasByRestaurant = allPizzas.reduce((acc, pizza) => {
+          const restaurantId = pizza.restaurant_id;
+          if (!acc[restaurantId]) {
+            acc[restaurantId] = [];
+          }
+          acc[restaurantId].push(pizza);
+          return acc;
+        }, {});
+
+        setGroupedPizzas(pizzasByRestaurant);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching pizzas:", error);
       }
     };
 
-    fetchMessage();
+    fetchPizzas();
   }, []);
-  console.log("TEST", message)
 
-    const pizzas = [
-        { name: 'Margherita', toppings: ['Tomato', 'Mozzarella', 'Basil'], price: 10 },
-        { name: 'Pepperoni', toppings: ['Tomato', 'Mozzarella', 'Pepperoni'], price: 12 },
-    ];
-
-    const handleSearch = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
-    const filteredPizzas = pizzas.filter(pizza =>
-        pizza.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    return (
-        <>
-            <Navbar />
-           <Stack 
-            spacing={0} // Remove spacing between children
-            sx={{ 
-                background: 'linear-gradient(to bottom, #FEEFDF, #FEE1C4, #FED0A1, #FFF0E2, #FFE3C6)', // Linear gradient background
-                p: 0, // Remove padding
-                height: '100vh',
-                flexDirection: { xs: 'column', md: 'row-reverse' }, // Move image to the right
-            }}
-        >
-            <Box 
-                sx={{ 
-                    flex: 1, 
-                    position: 'relative', 
-                    height: '100%', 
-                    overflow: 'hidden', 
-                    width: '100%',
-                    m: 0, // Remove margin
-                    p: 0, // Remove padding
-                }}
-            >
-                <Image 
-                    src="/images/pizza-image.png" 
-                    alt="Pizza Image" 
-                    layout="fill"
-                    objectFit="cover" // Cover the entire right side
-                    style={{
-                        filter: 'blur(4px)', // Mild blur for blending
-                        opacity: 0.7, // Lower opacity for a subtle look
-                        margin: 0, // Ensure no margin on image
-                        padding: 0, // Ensure no padding on image
-                        boxShadow: 'none', // Remove any shadow if applicable
-                    }}
-                />
-            </Box>
-
-            <Box 
-                sx={{ 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'center', 
-                    textAlign: 'center',
-                    gap: 2,
-                    px: { xs: 0, md: 4 }, // Remove horizontal padding for mobile
-                    pt: 0, // Remove top padding
-                    m: 0, // Remove margin
-                }}
-            >
-                <Typography 
-                    variant="h1" 
-                    sx={{ 
-                        fontSize: { xs: '2.5rem', md: '4rem' },
-                        color: '#C67C04', // Darker orange tone matching the theme
-                        fontWeight: '700',
-                    }}
-                    gutterBottom
-                >
-                    Order Us
-                </Typography>
-                <Typography 
-                    variant="h6" 
-                    sx={{ 
-                        fontSize: { xs: '1rem', md: '1.25rem' }, 
-                        color: '#804C1B', // Muted brown tone
-                    }}
-                    gutterBottom
-                >
-                    Choose from our wide variety of hand-crafted pizzas made with fresh ingredients and lots of love.
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', m: 0, p: 0 }}>
-                    <SearchBar 
-                        placeholder="Search for pizzas..." 
-                        value={searchQuery} 
-                        onChange={handleSearch} 
-                        sx={{ 
-                            bgcolor: 'white', // Set background to white
-                            width: '100%', 
-                            borderRadius: '50px',
-                            border: '2px solid #C67C04', // Border in theme color
-                            maxWidth: '500px',
-                            m: 0, // Remove margin
-                            px: 0, // Remove horizontal padding
-                            py: 1.5,
-                            '& input': {
-                                bgcolor: 'white', // Ensure input is white
-                            },
-                        }} 
-                    />
-                </Box>
-            </Box>
-        </Stack>
-            <Typography variant="h1" 
-                        sx={{ 
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            color: '#00000', // Darker orange tone matching the theme
-                            fontWeight: '700',
-                        }}>
-                Featured Pizzas
+  return (
+    <Container sx={{ padding: '40px' }}>
+      <Typography variant="h3" align="center" gutterBottom color="primary">
+        Delicious Pizzas Near You
+      </Typography>
+      {Object.keys(groupedPizzas).length === 0 ? (
+        <Typography variant="h6" align="center">No pizzas available.</Typography>
+      ) : (
+        Object.entries(groupedPizzas).map(([restaurantId, pizzas]) => (
+          <Box key={restaurantId} sx={{ marginBottom: '40px' }}>
+            <Typography variant="h4" align="center" gutterBottom>
+              Restaurant {restaurantId}
             </Typography>
-            <FeaturedPizzaCarousel />
-            
-            <Typography variant="h1" 
-                        sx={{ 
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            color: '#00000', // Darker orange tone matching the theme
-                            fontWeight: '700',
-                        }}>
-                Top Restorants
-            </Typography>
-            <TopRestaurants />
-            <Typography variant="h1" 
-                        sx={{ 
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            color: '#00000', // Darker orange tone matching the theme
-                            fontWeight: '700',
-                        }}>
-                Popular Pizzas
-            </Typography>
-            <Box sx={{ p: 2 }}>
-            <Grid container spacing={2}>
-                {samplePizzas.map((pizza, index) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                        <PizzaPaper pizza={pizza} />
-                    </Grid>
-                ))}
+            <Divider sx={{ marginBottom: '20px' }} />
+            <Grid container spacing={4}>
+              {pizzas.map(pizza => (
+                <Grid item xs={12} sm={6} md={4} key={pizza.id}>
+                  <Card>
+                    {pizza.image_url && (
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={pizza.image_url}
+                        alt={pizza.name}
+                      />
+                    )}
+                    <CardContent>
+                      <Typography variant="h5">{pizza.name}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Price: ${pizza.base_price}
+                      </Typography>
+                      {pizza.description && (
+                        <Typography variant="body2" color="text.secondary">
+                          {pizza.description}
+                        </Typography>
+                      )}
+                      <Typography variant="body2" color="text.secondary">
+                        Toppings: {pizza.toppings.join(", ")}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
-        </Box>
-        <Typography variant="h1" 
-                        sx={{ 
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            color: '#00000', // Darker orange tone matching the theme
-                            fontWeight: '700',
-                        }}> Fasting
-        </Typography>
-        <Box sx={{ p: 2 }}>
-            <Grid container spacing={2}>
-                {samplePizzas.map((pizza, index) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                        <PizzaPaper pizza={pizza} />
-                    </Grid>
-                ))}
-            </Grid>
-        </Box>
-            <Footer/>
-        </>
-    );
+          </Box>
+        ))
+      )}
+    </Container>
+  );
 };
 
-export default HomePage;
+export default Home;
