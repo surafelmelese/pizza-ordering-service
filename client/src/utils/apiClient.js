@@ -3,12 +3,13 @@ import axios from 'axios';
 //https://pizza-ordering-service-1.onrender.com
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000', // Base API
+  baseURL: 'https://pizza-ordering-service-1.onrender.com' ,// Base API
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+console.log(process.env.REACT_APP_API_BASE_URL)
 apiClient.interceptors.request.use(config => {
   const user = JSON.parse(localStorage.getItem('user'));
   if (user && user.token) {

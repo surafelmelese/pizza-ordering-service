@@ -6,10 +6,11 @@ import {
   Divider,
   Card,
   CardContent,
-  CardMedia,
   Grid,
   Container,
 } from '@mui/material';
+import Image from 'next/image';
+import defaultPizzaImage from '../../public/images/defaultPizzaImage.jpg';
 
 const Home = () => {
   const [groupedPizzas, setGroupedPizzas] = useState({});
@@ -20,9 +21,9 @@ const Home = () => {
         const allPizzaData = await getAllPizzas();
         const allPizzas = allPizzaData.data;
 
-        // Group pizzas by restaurant_id
         const pizzasByRestaurant = allPizzas.reduce((acc, pizza) => {
           const restaurantId = pizza.restaurant_id;
+          console.log("Pizza image URL:", pizza.image_url);
           if (!acc[restaurantId]) {
             acc[restaurantId] = [];
           }
@@ -56,26 +57,32 @@ const Home = () => {
             <Grid container spacing={4}>
               {pizzas.map(pizza => (
                 <Grid item xs={12} sm={6} md={4} key={pizza.id}>
-                  <Card>
-                    {pizza.image_url && (
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={pizza.image_url}
-                        alt={pizza.name}
-                      />
-                    )}
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Image
+                      // src={
+                      //     (pizza.image_url && pizza.image_url.startsWith('/') 
+                      //       ? pizza.image_url 
+                      //       : pizza.image_url ? `/assets/pizza/${pizza.image_url}` : defaultPizzaImage.src)}
+                      src={
+                        defaultPizzaImage.src
+                      }
+                      alt={pizza.name || 'Default Pizza Image'}
+                      width={300}
+                      height={200}
+                      layout="responsive"
+                      onError={(e) => { e.target.src = defaultPizzaImage.src }}
+                    />
                     <CardContent>
-                      <Typography variant="h5">{pizza.name}</Typography>
+                      <Typography variant="h5" gutterBottom>{pizza.name}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Price: ${pizza.base_price}
+                        Price: ${pizza.base_price && Number(pizza.base_price).toFixed(2)}
                       </Typography>
                       {pizza.description && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                           {pizza.description}
                         </Typography>
                       )}
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                         Toppings: {pizza.toppings.join(", ")}
                       </Typography>
                     </CardContent>
