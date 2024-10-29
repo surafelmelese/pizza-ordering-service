@@ -1,13 +1,8 @@
-// src/utils/withAuth.js
-import { useAuth } from '../context/AuthContext';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-
 const withAuth = (WrappedComponent, requiredRoles) => {
-  return (props) => {
+  const AuthHOC = (props) => {
     const { user, loading } = useAuth();
     const router = useRouter();
-    console.log(user.user.role_name)
+    console.log(user.user.role_name);
 
     useEffect(() => {
       // Normalize roles to lowercase for case-insensitive comparison
@@ -21,12 +16,17 @@ const withAuth = (WrappedComponent, requiredRoles) => {
       ) {
         router.push('/login');
       }
-    }, [loading, user, requiredRoles]);
+    }, [loading, user, requiredRoles, router]);
 
     if (loading || !user) return <p>Loading...</p>;
 
     return <WrappedComponent {...props} />;
   };
+
+  // Set a display name for the component
+  AuthHOC.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return AuthHOC;
 };
 
 export default withAuth;
