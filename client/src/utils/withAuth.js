@@ -8,12 +8,10 @@ const withAuth = (WrappedComponent, requiredRoles) => {
     const router = useRouter();
 
     useEffect(() => {
-      const userRole = user?.user?.role_name?.toLowerCase();
-
-      if (!loading && (!user || (requiredRoles && !requiredRoles.includes(userRole)))) {
+      if (!loading && (!user || (requiredRoles && !requiredRoles.includes(user?.user?.role_name.toLowerCase())))) {
         router.push('/login');
       }
-    }, [loading, user, requiredRoles, router]);
+    }, [loading, user, router]);
 
     if (loading || !user) return <p>Loading...</p>;
 
