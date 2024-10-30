@@ -1,17 +1,43 @@
 import React, { useState } from 'react';
-import { Box, Drawer, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import { LocalPizza as PizzaIcon, ListAlt as OrdersIcon, Add as AddMenuIcon, Group as RoleIcon, Person as UserIcon } from '@mui/icons-material';
-import Orders from './Orders'; // Import the Orders component
-import AddMenu from './AddMenu'; // Import AddMenu component
-import Role from './Role'; // Import Role component
-import User from './User'; // Import User component
+import {
+  Box,
+  Drawer,
+  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  AppBar,
+  Toolbar,
+  IconButton,
+} from '@mui/material';
+import {
+  LocalPizza as PizzaIcon,
+  ListAlt as OrdersIcon,
+  Add as AddMenuIcon,
+  Group as RoleIcon,
+  Person as UserIcon,
+  Menu as MenuIcon,
+  ExitToApp as LogoutIcon // Import logout icon
+} from '@mui/icons-material';
+import { useAuth } from '../context/AuthContext';
+import Orders from './Orders';
+import AddMenu from './AddMenu';
+import Role from './Role';
+import User from './User';
 
 const drawerWidth = 240;
 
 const Dashboard = () => {
-  const [currentComponent, setCurrentComponent] = useState('orders'); // Track the selected component
+  const [currentComponent, setCurrentComponent] = useState('orders');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [title, setTitle] = useState('Pizza Dashboard'); // State for title
+  const { logout } = useAuth();
 
-  // Function to render components based on the selected option
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   const renderComponent = () => {
     switch (currentComponent) {
       case 'orders':
@@ -23,13 +49,36 @@ const Dashboard = () => {
       case 'user':
         return <User />;
       default:
-        return <Orders />; // Default component
+        return <Orders />;
     }
   };
 
+  const handleMenuClick = (text) => {
+    setCurrentComponent(text);
+    setTitle(text.charAt(0).toUpperCase() + text.slice(1)); // Update title based on clicked item
+  };
+
+  const handleLogout = () => {
+  };
+
   return (
-    <Box sx={{ display: 'flex', maxWidth: '100vw', overflow: 'hidden' }}>
-      {/* Sidebar Drawer */}
+    <Box sx={{ display: 'flex', bgcolor: 'white', maxWidth: '100vw', overflow: 'hidden' }}>
+      <AppBar position="fixed" sx={{ bgcolor: 'white' }}>
+        <Toolbar>
+          <IconButton
+            color="black"
+            aria-label="open drawer"
+            onClick={handleDrawerToggle}
+            sx={{ display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" color='black' sx={{ ml: { sm: `${drawerWidth}px` } }} noWrap>
+            {title} {/* Display dynamic title */}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
       <Drawer
         sx={{
           width: drawerWidth,
@@ -38,8 +87,9 @@ const Dashboard = () => {
             width: drawerWidth,
             boxSizing: 'border-box',
           },
+          display: { xs: 'none', sm: 'block' }, // Show only on larger screens
         }}
-        variant="permanent"
+        variant="permanent" // Always visible on large screens
         anchor="left"
       >
         <Box sx={{ padding: 2, textAlign: 'center' }}>
@@ -47,47 +97,95 @@ const Dashboard = () => {
           <PizzaIcon sx={{ fontSize: 50 }} />
         </Box>
         <List>
-          {/* Sidebar links */}
-          <ListItem button onClick={() => setCurrentComponent('orders')}>
+          {['orders', 'addMenu', 'role', 'user'].map((text) => (
+            <ListItem
+              button
+              key={text}
+              onClick={() => handleMenuClick(text)}
+              sx={{
+                backgroundColor: currentComponent === text ? 'orange' : 'transparent', // Change color when clicked
+                '&:hover': { backgroundColor: 'orange', cursor: 'pointer' },
+              }}
+            >
+              <ListItemIcon>
+                {text === 'orders' ? <OrdersIcon /> : text === 'addMenu' ? <AddMenuIcon /> : text === 'role' ? <RoleIcon /> : <UserIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text.charAt(0).toUpperCase() + text.slice(1)} />
+            </ListItem>
+          ))}
+        </List>
+        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} /> {/* Horizontal line */}
+        <List>
+          <ListItem button onClick={logout} sx={{ '&:hover': {cursor: 'pointer'  } }}>
             <ListItemIcon>
-              <OrdersIcon />
+              <LogoutIcon sx={{ color: 'red'}} /> {/* Set icon color */}
             </ListItemIcon>
-            <ListItemText primary="Orders" />
-          </ListItem>
-          <ListItem button onClick={() => setCurrentComponent('addMenu')}>
-            <ListItemIcon>
-              <AddMenuIcon />
-            </ListItemIcon>
-            <ListItemText primary="Add Menu" />
-          </ListItem>
-          <ListItem button onClick={() => setCurrentComponent('role')}>
-            <ListItemIcon>
-              <RoleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Role" />
-          </ListItem>
-          <ListItem button onClick={() => setCurrentComponent('user')}>
-            <ListItemIcon>
-              <UserIcon />
-            </ListItemIcon>
-            <ListItemText primary="User" />
+            <ListItemText primary="Logout" sx={{ color: 'red' }} /> {/* Set text color */}
           </ListItem>
         </List>
       </Drawer>
 
-      {/* Main content area */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: 'block', sm: 'none' }, // Show only on smaller screens
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+          },
+        }}
+      >
+        <Box sx={{ padding: 2, textAlign: 'center' }}>
+          <Typography variant="h4">PIZZA</Typography>
+          <PizzaIcon sx={{ fontSize: 50 }} />
+        </Box>
+        <List onClick={handleDrawerToggle}>
+          {['orders', 'addMenu', 'role', 'user'].map((text) => (
+            <ListItem
+              button
+              key={text}
+              onClick={() => handleMenuClick(text)}
+              sx={{
+                backgroundColor: currentComponent === text ? 'orange' : 'transparent', // Change color when clicked
+                '&:hover': { backgroundColor: 'orange', cursor: 'pointer' },
+              }}
+            >
+              <ListItemIcon>
+                {text === 'orders' ? <OrdersIcon /> : text === 'addMenu' ? <AddMenuIcon /> : text === 'role' ? <RoleIcon /> : <UserIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text.charAt(0).toUpperCase() + text.slice(1)} />
+            </ListItem>
+          ))}
+        </List>
+        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} /> {/* Horizontal line */}
+        <List>
+          <ListItem
+            button
+            onClick={logout}sx={{
+              '&:hover': { cursor: 'pointer' }, // Change cursor to pointer on hover
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon sx={{ color: 'red' }} />
+            </ListItemIcon>
+            <ListItemText primary="Logout" sx={{ color: 'red' }} />
+          </ListItem>
+        </List>
+      </Drawer>
+
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           bgcolor: 'background.default',
-          p: 3,
-          width: `calc(100% - ${drawerWidth}px)`, // Fill the remaining space
-          overflowY: 'auto', // Allow vertical scrolling if content overflows
-          maxWidth: 'calc(100vw - ${drawerWidth}px)', // Ensure it does not exceed screen width
+          width: { sm: `calc(100% - ${drawerWidth}px)`, xs: '100%' },
+          overflowY: 'auto', // Push content to the right when drawer is visible
         }}
       >
-        {/* Conditionally render components */}
         {renderComponent()}
       </Box>
     </Box>

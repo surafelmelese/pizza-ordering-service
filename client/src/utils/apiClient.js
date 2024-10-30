@@ -1,11 +1,9 @@
 import axios from 'axios';
 
 //https://pizza-ordering-service-1.onrender.com
-/* eslint-disable-next-line react/display-name */
-/* eslint-disable-next-line react-hooks/exhaustive-deps */
 
 const apiClient = axios.create({
-  baseURL: 'https://pizza-ordering-service-1.onrender.com' ,// Base API
+  baseURL: 'http://localhost:3000/' ,// Base API
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getAllPizzas } from '../api/pizzaApi';
 import {
-  Box,
-  Typography,
-  Divider,
-  Card,
-  CardContent,
-  Grid,
-  Container,
+  Box, Typography, Divider, Card, CardContent, Grid, Container,
 } from '@mui/material';
 import Image from 'next/image';
 import defaultPizzaImage from '../../public/images/defaultPizzaImage.jpg';
@@ -18,20 +12,26 @@ const Home = () => {
   useEffect(() => {
     const fetchPizzas = async () => {
       try {
-        const allPizzaData = await getAllPizzas();
-        const allPizzas = allPizzaData.data;
+        const storedData = localStorage.getItem('groupedPizzas');
+        
+        if (storedData) {
+          setGroupedPizzas(JSON.parse(storedData));
+        } else {
+          const allPizzaData = await getAllPizzas();
+          const allPizzas = allPizzaData.data;
 
-        const pizzasByRestaurant = allPizzas.reduce((acc, pizza) => {
-          const restaurantId = pizza.restaurant_id;
-          console.log("Pizza image URL:", pizza.image_url);
-          if (!acc[restaurantId]) {
-            acc[restaurantId] = [];
-          }
-          acc[restaurantId].push(pizza);
-          return acc;
-        }, {});
+          const pizzasByRestaurant = allPizzas.reduce((acc, pizza) => {
+            const restaurantId = pizza.restaurant_id;
+            if (!acc[restaurantId]) {
+              acc[restaurantId] = [];
+            }
+            acc[restaurantId].push(pizza);
+            return acc;
+          }, {});
 
-        setGroupedPizzas(pizzasByRestaurant);
+          setGroupedPizzas(pizzasByRestaurant);
+          localStorage.setItem('groupedPizzas', JSON.stringify(pizzasByRestaurant));
+        }
       } catch (error) {
         console.error("Error fetching pizzas:", error);
       }
@@ -59,13 +59,7 @@ const Home = () => {
                 <Grid item xs={12} sm={6} md={4} key={pizza.id}>
                   <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Image
-                      // src={
-                      //     (pizza.image_url && pizza.image_url.startsWith('/') 
-                      //       ? pizza.image_url 
-                      //       : pizza.image_url ? `/assets/pizza/${pizza.image_url}` : defaultPizzaImage.src)}
-                      src={
-                        defaultPizzaImage.src
-                      }
+                      src={defaultPizzaImage.src}
                       alt={pizza.name || 'Default Pizza Image'}
                       width={300}
                       height={200}

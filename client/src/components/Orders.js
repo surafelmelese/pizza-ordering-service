@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Typography,
   Box,
-  InputLabel,
   Button,
   Dialog,
   DialogActions,
@@ -13,13 +12,21 @@ import {
   FormControlLabel,
   List,
   ListItem,
+  OutlinedInput,
   Select,
   MenuItem,
   FormControl,
+  IconButton 
 } from '@mui/material';
 import { MaterialReactTable } from 'material-react-table';
 import { getAllToppings } from '../api/toppingApi';
 import { getAllOrders, createOrder, updateOrder, deleteOrder } from '../api/orderApi';
+import { CSVLink } from 'react-csv';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -31,12 +38,11 @@ const Orders = () => {
     quantity: '',
     phone_number: '',
     toppings: [],
-    status: orders.status || 'Preparing', // Default status
+    status: 'Preparing',
   });
 
-  // Date formatting function
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const options = { hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'numeric', day: 'numeric' };
     return new Date(dateString).toLocaleString(undefined, options);
   };
 
@@ -46,7 +52,6 @@ const Orders = () => {
         const storedOrders = localStorage.getItem('orders');
         if (storedOrders) {
           setOrders(JSON.parse(storedOrders));
-          console.log("Loaded orders from local storage:", JSON.parse(storedOrders));
         } else {
           const response = await getAllOrders();
           setOrders(response.data);
@@ -78,7 +83,7 @@ const Orders = () => {
         quantity: order.quantity,
         phone_number: order.phone_number,
         toppings: order.toppings,
-        status: order.status || 'Preparing', // Ensure status is set correctly
+        status: order.status || 'Preparing',
       });
     } else {
       setOrderData({ pizza_id: '', quantity: '', phone_number: '', toppings: [], status: 'Preparing' });
@@ -133,29 +138,24 @@ const Orders = () => {
     }
   };
 
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      await updateOrder(id, { status: newStatus });
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === id ? { ...order, status: newStatus } : order
-        )
-      );
-      const response = await getAllOrders();
-      setOrders(response.data);
-      localStorage.setItem('orders', JSON.stringify(response.data));
-    } catch (error) {
-      console.error('Error updating status', error);
-    }
-  };
-
   const columns = [
     { accessorKey: 'pizza_id', header: 'Pizza Name' },
     {
       accessorKey: 'toppings',
       header: 'Toppings',
       Cell: ({ row }) => (
-        <Button variant="outlined" onClick={() => handleDialogOpen(row.original)}>Toppings</Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', color: 'orange' }}>
+          <IconButton sx={{ color: 'orange', padding: 0 }}>
+            <VisibilityIcon />
+          </IconButton>
+          <Typography 
+            variant="body2" 
+            onClick={() => handleDialogOpen(row.original)} 
+            sx={{ cursor: 'pointer', color: 'orange' }}
+          >
+            Toppings
+          </Typography>
+        </Box>
       ),
     },
     { accessorKey: 'quantity', header: 'Quantity' },
@@ -169,27 +169,41 @@ const Orders = () => {
       accessorKey: 'status',
       header: 'Status',
       Cell: ({ row }) => (
-          <FormControl>
-            <Select
-              name="status"
-              value={orderData.status}
-              onChange={handleChange}
-              displayEmpty
-            >
-              <MenuItem value="Preparing">Preparing</MenuItem>
-              <MenuItem value="Delivered">Delivered</MenuItem>
-              <MenuItem value="Ready">Ready</MenuItem>
-            </Select>
-          </FormControl>
+           <FormControl fullWidth>
+    <Select
+      name="status"
+      value={orderData.status}
+      onChange={handleChange}
+      displayEmpty
+      input={<OutlinedInput notched={false} />} // Remove outline
+      sx={{
+        height: '100%', // Fit to height
+        '& .MuiSelect-select': {
+          padding: '10px 0', // Adjust padding
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          border: 'none', // Remove border
+        },
+      }}
+    >
+      <MenuItem value="Preparing">Preparing</MenuItem>
+      <MenuItem value="Delivered">Delivered</MenuItem>
+      <MenuItem value="Ready">Ready</MenuItem>
+    </Select>
+  </FormControl>
       ),
     },
     {
       accessorKey: 'actions',
       header: 'Actions',
       Cell: ({ row }) => (
-        <Box>
-          <Button onClick={() => handleDialogOpen(row.original)}>Edit</Button>
-          <Button color="error" onClick={() => handleDelete(row.original.id)}>Delete</Button>
+       <Box display="flex" gap={1}>
+          <IconButton onClick={() => handleDialogOpen(row.original)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton color="error" onClick={() => handleDelete(row.original.id)}>
+            <DeleteIcon />
+          </IconButton>
         </Box>
       ),
     },
@@ -197,9 +211,25 @@ const Orders = () => {
 
   return (
     <Box>
-      <Button variant="contained" onClick={() => handleDialogOpen()}>Add Order</Button>
-      <Box style={{ overflow: 'hidden', width: '100%' }}>
-        <MaterialReactTable columns={columns} data={orders} />
+      <Box sx={{ backgroundColor: '#f5f5f5'}}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} sx={{ backgroundColor: '#FF6600', padding: 2 }}>
+          <Typography variant="h6" sx={{ color: '#fff' }}>Packages</Typography>
+          <Box>
+            <Button onClick={() => window.location.reload()} startIcon={<RefreshIcon />} sx={{ color: '#fff', m:0, p:0 }}/>
+            <CSVLink data={orders} filename="orders.csv" style={{ textDecoration: 'none', m:0, p:0  }}>
+              <Button startIcon={<DownloadIcon />} sx={{ color: '#fff', m:0, p:0 }}/>
+            </CSVLink>
+          </Box>
+        </Box>
+        <MaterialReactTable
+          columns={columns}
+          data={orders}
+          components={{
+            Toolbar: () => <CustomToolbar orders={orders} />,
+          }}
+          enableColumnFiltering={false}
+          sx={{ backgroundColor: '#000000', '& .MuiTableCell-root': { padding: 0, margin: 0 } }}
+        />
       </Box>
 
       <Dialog open={openDialog} onClose={handleDialogClose}>
