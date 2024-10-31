@@ -1,14 +1,15 @@
-// src/components/Navbar.js
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
+import PizzaIcon from '@mui/icons-material/LocalPizza';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ backgroundColor: 'orange' }}>
       <Toolbar>
+        <PizzaIcon sx={{ marginRight: 1 }} />
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Pizza App
         </Typography>

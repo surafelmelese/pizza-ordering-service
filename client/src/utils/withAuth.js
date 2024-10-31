@@ -7,7 +7,6 @@ const withAuth = (WrappedComponent, requiredRoles) => {
   return (props) => {
     const { user, loading } = useAuth();
     const router = useRouter();
-    console.log(user.user.role_name)
 
     useEffect(() => {
       // Normalize roles to lowercase for case-insensitive comparison

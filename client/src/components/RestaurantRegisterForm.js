@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TextField, Button, Typography, Box, Paper } from '@mui/material';
 import { createRestaurant } from '../api/restaurantApi';
 
-const RestaurantRegisterForm = ({ onRestaurantCreated }) => { // Accept onRestaurantCreated prop
+const RestaurantRegisterForm = ({ onRestaurantCreated }) => { 
   const [restaurant, setRestaurant] = useState({
     full_name: '',
     email: '',
@@ -27,7 +27,7 @@ const RestaurantRegisterForm = ({ onRestaurantCreated }) => { // Accept onRestau
     try {
       await createRestaurant(restaurant);
       alert('Restaurant registered successfully!');
-      onRestaurantCreated(); // Call the prop function to indicate restaurant creation
+      onRestaurantCreated();
     } catch (error) {
       console.error('Error registering restaurant', error);
     }

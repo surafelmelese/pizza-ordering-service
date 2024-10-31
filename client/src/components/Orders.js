@@ -18,15 +18,12 @@ import {
   FormControl,
   IconButton 
 } from '@mui/material';
-import { MaterialReactTable } from 'material-react-table';
 import { getAllToppings } from '../api/toppingApi';
 import { getAllOrders, createOrder, updateOrder, deleteOrder } from '../api/orderApi';
-import { CSVLink } from 'react-csv';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DownloadIcon from '@mui/icons-material/Download';
+import GenericTable from './GenericTable';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -35,6 +32,7 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderData, setOrderData] = useState({
     pizza_id: '',
+    pizza_name: '',  // Added to store pizza name
     quantity: '',
     phone_number: '',
     toppings: [],
@@ -49,14 +47,9 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const storedOrders = localStorage.getItem('orders');
-        if (storedOrders) {
-          setOrders(JSON.parse(storedOrders));
-        } else {
-          const response = await getAllOrders();
-          setOrders(response.data);
-          localStorage.setItem('orders', JSON.stringify(response.data));
-        }
+        const response = await getAllOrders();
+        setOrders(response.data);
+        localStorage.setItem('orders', JSON.stringify(response.data));
       } catch (error) {
         console.error('Error fetching orders', error);
       }
@@ -80,13 +73,14 @@ const Orders = () => {
     if (order) {
       setOrderData({
         pizza_id: order.pizza_id,
+        pizza_name: order.pizza_name, // Set pizza_name from order
         quantity: order.quantity,
         phone_number: order.phone_number,
         toppings: order.toppings,
         status: order.status || 'Preparing',
       });
     } else {
-      setOrderData({ pizza_id: '', quantity: '', phone_number: '', toppings: [], status: 'Preparing' });
+      setOrderData({ pizza_id: '', pizza_name: '', quantity: '', phone_number: '', toppings: [], status: 'Preparing' });
     }
     setOpenDialog(true);
   };
@@ -139,7 +133,7 @@ const Orders = () => {
   };
 
   const columns = [
-    { accessorKey: 'pizza_id', header: 'Pizza Name' },
+    { accessorKey: 'pizza_name', header: 'Pizza Name' }, // Changed from pizza_id to pizza_name
     {
       accessorKey: 'toppings',
       header: 'Toppings',
@@ -175,14 +169,14 @@ const Orders = () => {
       value={orderData.status}
       onChange={handleChange}
       displayEmpty
-      input={<OutlinedInput notched={false} />} // Remove outline
+      input={<OutlinedInput notched={false} />}
       sx={{
-        height: '100%', // Fit to height
+        height: '100%', 
         '& .MuiSelect-select': {
-          padding: '10px 0', // Adjust padding
+          padding: '10px 0',
         },
         '& .MuiOutlinedInput-notchedOutline': {
-          border: 'none', // Remove border
+          border: 'none',
         },
       }}
     >
@@ -212,23 +206,10 @@ const Orders = () => {
   return (
     <Box>
       <Box sx={{ backgroundColor: '#f5f5f5'}}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} sx={{ backgroundColor: '#FF6600', padding: 2 }}>
-          <Typography variant="h6" sx={{ color: '#fff' }}>Packages</Typography>
-          <Box>
-            <Button onClick={() => window.location.reload()} startIcon={<RefreshIcon />} sx={{ color: '#fff', m:0, p:0 }}/>
-            <CSVLink data={orders} filename="orders.csv" style={{ textDecoration: 'none', m:0, p:0  }}>
-              <Button startIcon={<DownloadIcon />} sx={{ color: '#fff', m:0, p:0 }}/>
-            </CSVLink>
-          </Box>
-        </Box>
-        <MaterialReactTable
+        <GenericTable
+          title="Orders"
           columns={columns}
           data={orders}
-          components={{
-            Toolbar: () => <CustomToolbar orders={orders} />,
-          }}
-          enableColumnFiltering={false}
-          sx={{ backgroundColor: '#000000', '& .MuiTableCell-root': { padding: 0, margin: 0 } }}
         />
       </Box>
 
@@ -239,9 +220,9 @@ const Orders = () => {
         <DialogTitle>{selectedOrder ? 'Edit Order' : 'Add Order'}</DialogTitle>
         <DialogContent>
           <TextField
-            label="Pizza ID"
-            name="pizza_id"
-            value={orderData.pizza_id}
+            label="Pizza Name"
+            name="pizza_name" // Updated name to pizza_name
+            value={orderData.pizza_name}
             onChange={handleChange}
             fullWidth
             margin="normal"

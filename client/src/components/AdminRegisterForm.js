@@ -1,13 +1,12 @@
-// src/pages/admin-register.js
 import { useState } from 'react';
 import { TextField, Button, Typography, Box, Paper } from '@mui/material';
-import { createUser } from '../api/userApi'; // API function for admin registration
-import { useAuth } from '../context/AuthContext'; // Import your AuthContext
-import { useRouter } from 'next/router'; // Import useRouter for navigation
+import { createUser } from '../api/userApi';
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
 
 const AdminRegisterPage = () => {
-  const { login } = useAuth(); // Use login from AuthContext
-  const router = useRouter(); // Initialize router for navigation
+  const { login } = useAuth();
+  const router = useRouter();
   const [admin, setAdmin] = useState({
     full_name: '',
     email: '',
@@ -29,15 +28,10 @@ const AdminRegisterPage = () => {
       return;
     }
     try {
-      // Register the admin
       await createUser(admin);
       alert('Admin registered successfully!');
-
-      // Automatically log in the new admin using AuthContext
-      await login(admin.email, admin.password); // Use the login function from AuthContext
-
-      // Redirect to the dashboard after successful login
-      router.push('/admin'); // Redirect to the dashboard
+      await login(admin.email, admin.password);
+      router.push('/admin');
     } catch (error) {
       console.error('Error registering admin', error);
     }

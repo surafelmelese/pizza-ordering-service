@@ -49,17 +49,18 @@ export const createOrder = async (userId, restaurantId, orderData) => {
     }
 };
 
-// Get all orders with detailed information
 export const getAllOrders = async () => {
     const query = `
-        SELECT o.id, oi.pizza_id, oi.quantity, o.status, p.phone_number, o.created_at,
+        SELECT o.id, oi.pizza_id, p.name AS pizza_name, oi.quantity, o.status, 
+               profile.phone_number, o.created_at,
                array_remove(array_agg(t.id), NULL) AS toppings  -- Remove NULL toppings
         FROM orders o
         JOIN order_items oi ON o.id = oi.order_id
-        JOIN profile p ON o.user_id = p.user_id
+        JOIN profile ON o.user_id = profile.user_id
+        JOIN pizzas p ON oi.pizza_id = p.id  -- Join pizzas table to get pizza name
         LEFT JOIN order_toppings ot ON oi.id = ot.order_item_id
         LEFT JOIN toppings t ON ot.topping_id = t.id
-        GROUP BY o.id, oi.pizza_id, oi.quantity, p.phone_number, o.status, o.created_at;  -- Include created_at in GROUP BY
+        GROUP BY o.id, oi.pizza_id, p.name, oi.quantity, profile.phone_number, o.status, o.created_at;  -- Include pizza name in GROUP BY
     `;
 
     try {

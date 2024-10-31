@@ -18,7 +18,7 @@ import {
   Group as RoleIcon,
   Person as UserIcon,
   Menu as MenuIcon,
-  ExitToApp as LogoutIcon // Import logout icon
+  ExitToApp as LogoutIcon
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import Orders from './Orders';
@@ -31,7 +31,7 @@ const drawerWidth = 240;
 const Dashboard = () => {
   const [currentComponent, setCurrentComponent] = useState('orders');
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [title, setTitle] = useState('Pizza Dashboard'); // State for title
+  const [title, setTitle] = useState('Pizza Dashboard');
   const { logout } = useAuth();
 
   const handleDrawerToggle = () => {
@@ -55,10 +55,7 @@ const Dashboard = () => {
 
   const handleMenuClick = (text) => {
     setCurrentComponent(text);
-    setTitle(text.charAt(0).toUpperCase() + text.slice(1)); // Update title based on clicked item
-  };
-
-  const handleLogout = () => {
+    setTitle(text.charAt(0).toUpperCase() + text.slice(1));
   };
 
   return (
@@ -74,7 +71,7 @@ const Dashboard = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" color='black' sx={{ ml: { sm: `${drawerWidth}px` } }} noWrap>
-            {title} {/* Display dynamic title */}
+            {title} 
           </Typography>
         </Toolbar>
       </AppBar>
@@ -87,9 +84,9 @@ const Dashboard = () => {
             width: drawerWidth,
             boxSizing: 'border-box',
           },
-          display: { xs: 'none', sm: 'block' }, // Show only on larger screens
+          display: { xs: 'none', sm: 'block' },
         }}
-        variant="permanent" // Always visible on large screens
+        variant="permanent" 
         anchor="left"
       >
         <Box sx={{ padding: 2, textAlign: 'center' }}>
@@ -103,8 +100,8 @@ const Dashboard = () => {
               key={text}
               onClick={() => handleMenuClick(text)}
               sx={{
-                backgroundColor: currentComponent === text ? 'orange' : 'transparent', // Change color when clicked
-                '&:hover': { backgroundColor: 'orange', cursor: 'pointer' },
+                backgroundColor: currentComponent === text ? 'orange' : 'transparent',
+                '&:hover': { backgroundColor: 'rgba(255, 102, 0, 0.2)', cursor: 'pointer' },
               }}
             >
               <ListItemIcon>
@@ -114,13 +111,13 @@ const Dashboard = () => {
             </ListItem>
           ))}
         </List>
-        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} /> {/* Horizontal line */}
+        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} /> 
         <List>
           <ListItem button onClick={logout} sx={{ '&:hover': {cursor: 'pointer'  } }}>
             <ListItemIcon>
-              <LogoutIcon sx={{ color: 'red'}} /> {/* Set icon color */}
+              <LogoutIcon sx={{ color: 'red'}} /> 
             </ListItemIcon>
-            <ListItemText primary="Logout" sx={{ color: 'red' }} /> {/* Set text color */}
+            <ListItemText primary="Logout" sx={{ color: 'red' }} /> 
           </ListItem>
         </List>
       </Drawer>
@@ -133,7 +130,7 @@ const Dashboard = () => {
           keepMounted: true,
         }}
         sx={{
-          display: { xs: 'block', sm: 'none' }, // Show only on smaller screens
+          display: { xs: 'block', sm: 'none' }, 
           '& .MuiDrawer-paper': {
             width: drawerWidth,
           },
@@ -150,8 +147,8 @@ const Dashboard = () => {
               key={text}
               onClick={() => handleMenuClick(text)}
               sx={{
-                backgroundColor: currentComponent === text ? 'orange' : 'transparent', // Change color when clicked
-                '&:hover': { backgroundColor: 'orange', cursor: 'pointer' },
+                backgroundColor: currentComponent === text ? 'orange' : 'transparent', 
+                '&:hover': { backgroundColor: 'rgba(255, 102, 0, 0.2)', cursor: 'pointer' },
               }}
             >
               <ListItemIcon>
@@ -161,12 +158,12 @@ const Dashboard = () => {
             </ListItem>
           ))}
         </List>
-        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} /> {/* Horizontal line */}
+        <hr style={{ margin: '20px 0', borderColor: '#FF6600' }} />
         <List>
           <ListItem
             button
             onClick={logout}sx={{
-              '&:hover': { cursor: 'pointer' }, // Change cursor to pointer on hover
+              '&:hover': { backgroundColor: 'rgba(255, 102, 0, 0.2)', cursor: 'pointer' },
             }}
           >
             <ListItemIcon>
@@ -183,7 +180,7 @@ const Dashboard = () => {
           flexGrow: 1,
           bgcolor: 'background.default',
           width: { sm: `calc(100% - ${drawerWidth}px)`, xs: '100%' },
-          overflowY: 'auto', // Push content to the right when drawer is visible
+          overflowY: 'auto', 
         }}
       >
         {renderComponent()}

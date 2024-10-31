@@ -1,11 +1,10 @@
-// src/pages/admin/users.js
 import withAuth from '../utils/withAuth';
 import { useEffect, useState } from 'react';
 import { getAllUsers, deleteUser } from '../api/userApi';
 import { Box, Typography, IconButton } from '@mui/material';
-import {MaterialReactTable} from 'material-react-table';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import GenericTable from './GenericTable';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -13,17 +12,15 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Check local storage first
         const storedUsers = localStorage.getItem('users');
         if (storedUsers) {
           setUsers(JSON.parse(storedUsers));
           console.log("Loaded users from local storage:", JSON.parse(storedUsers));
         } else {
           const response = await getAllUsers();
-          const userData = response.data?.data;  // Adjust based on API response
+          const userData = response.data?.data;
           setUsers(userData);
           console.log("Fetched Users:", userData);
-          // Store the fetched data in local storage
           localStorage.setItem('users', JSON.stringify(userData));
         }
       } catch (error) {
@@ -38,7 +35,6 @@ const UserList = () => {
       await deleteUser(id);
       setUsers((prevUsers) => {
         const updatedUsers = prevUsers.filter((user) => user.user_id !== id);
-        // Update local storage
         localStorage.setItem('users', JSON.stringify(updatedUsers));
         return updatedUsers;
       });
@@ -82,7 +78,8 @@ const UserList = () => {
       <Typography variant="h4" align="center" gutterBottom>
         User Management
       </Typography>
-      <MaterialReactTable
+      <GenericTable
+        title="users"
         columns={columns}
         data={users}
         enableColumnOrdering

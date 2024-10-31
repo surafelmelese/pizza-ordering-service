@@ -1,13 +1,12 @@
-// src/components/CustomerRegisterForm.js
 import { useState } from 'react';
 import { TextField, Button, Typography, Box, Paper } from '@mui/material';
-import { createUser } from '../api/userApi'; // API function for customer registration
-import { useAuth } from '../context/AuthContext'; // Import your AuthContext
-import { useRouter } from 'next/router'; // Import useRouter for navigation
+import { createUser } from '../api/userApi';
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
 
 const CustomerRegisterForm = () => {
-  const { login } = useAuth(); // Use login from AuthContext
-  const router = useRouter(); // Initialize router for navigation
+  const { login } = useAuth();
+  const router = useRouter();
   const [customer, setCustomer] = useState({
     full_name: '',
     email: '',
@@ -29,15 +28,11 @@ const CustomerRegisterForm = () => {
       return;
     }
     try {
-      // Register the customer
       await createUser(customer);
       alert('Customer registered successfully!');
+      await login(customer.email, customer.password);
 
-      // Automatically log in the new customer using AuthContext
-      await login(customer.email, customer.password); // Use the login function from AuthContext
-
-      // Redirect to the home page after successful login
-      router.push('/'); // Redirect to the home page
+      router.push('/');
     } catch (error) {
       console.error('Error registering customer', error);
     }

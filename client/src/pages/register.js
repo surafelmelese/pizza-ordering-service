@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import CustomerRegisterForm from '../components/CustomerRegisterForm';
 import RestaurantRegisterForm from '../components/RestaurantRegisterForm';
-import AdminRegisterForm from '../components/AdminRegisterForm'; // Import the AdminRegisterForm
-import { Button, Typography, Container, Box, Grid, Paper } from '@mui/material';
+import AdminRegisterForm from '../components/AdminRegisterForm'; 
+import { Button, Container, Box, Grid } from '@mui/material';
+import AuthHeader from '../components/AuthHeader';
+import Image from 'next/image';
+import pizzaLogo from '../../public/images/pizzaLogo.png';
 
 const Register = () => {
-  const [currentForm, setCurrentForm] = useState('admin'); // Track current form type
+  const [currentForm, setCurrentForm] = useState('admin');
 
   const handleRestaurantCreated = () => {
-    setCurrentForm('admin'); // Change to admin registration form after restaurant is created
+    setCurrentForm('admin');
   };
 
   const renderForm = () => {
@@ -25,53 +28,64 @@ const Register = () => {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="sm"
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f7f7f7',
-        padding: 2,
-      }}
-    >
-      <Paper elevation={3} sx={{ padding: 4, borderRadius: 2, width: '100%', height: '80%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Register as {currentForm === 'restaurant' ? 'Restaurant' : 'Customer'}
-        </Typography>
+    <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch' }}>
+      <Box 
+        sx={{ 
+          flex: 1, 
+          backgroundColor: 'orange', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          height: { xs: '200px', md: '100vh' }, // Responsive height
+          mb: { xs: 2, md: 0 }, // Margin bottom for small screens
+        }}
+      >
+        <Image
+          src={pizzaLogo.src}
+          alt={'Default Pizza Image'}
+          width={300}
+          height={300}
+          layout="responsive"
+          onError={(e) => { e.target.src = pizzaLogo.src; }}
+        />
+      </Box>
 
-        <Grid container spacing={2} justifyContent="center">
-          <Grid item xs={6}>
-            <Button
-              onClick={() => {
-                setCurrentForm('customer'); // Switch to customer registration
-              }}
-              variant={currentForm !== 'restaurant' ? "contained" : "outlined"}
-              color="primary"
-              fullWidth
-            >
-              Register as Customer
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              onClick={() => {
-                setCurrentForm('restaurant'); // Switch to restaurant registration
-              }}
-              variant={currentForm === 'restaurant' ? "contained" : "outlined"}
-              color="primary"
-              fullWidth
-            >
-              Register as Restaurant
-            </Button>
-          </Grid>
-        </Grid>
+      <Box 
+        flex={1} 
+        sx={{ 
+          padding: 2,
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center',
+          height: '100%',
+        }}
+      >
+        <AuthHeader title={`Register as ${currentForm === 'restaurant' ? 'Restaurant' : 'Customer'}`} />
 
-        <Box flexGrow={1} display="flex" justifyContent="center" alignItems="center">
-          {renderForm()} {/* Render the appropriate form based on currentForm state */}
+        <Box display="flex" justifyContent="space-between" mb={2}>
+          <Button
+            onClick={() => setCurrentForm('customer')}
+            variant={currentForm !== 'restaurant' ? "contained" : "outlined"}
+            color="primary"
+            fullWidth
+            sx={{ mr: 1 }}
+          >
+            Register as Customer
+          </Button>
+          <Button
+            onClick={() => setCurrentForm('restaurant')}
+            variant={currentForm === 'restaurant' ? "contained" : "outlined"}
+            color="primary"
+            fullWidth
+          >
+            Register as Restaurant
+          </Button>
         </Box>
-      </Paper>
+
+        <Box flexGrow={1} display="flex" justifyContent="center" alignItems="center" mt={2}>
+          {renderForm()}
+        </Box>
+      </Box>
     </Container>
   );
 };

@@ -1,4 +1,3 @@
-// src/components/Layout.js
 import Navbar from './Navbar';
 
 const Layout = ({ children }) => {
