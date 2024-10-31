@@ -3,7 +3,7 @@ import axios from 'axios';
 //https://pizza-ordering-service-1.onrender.com
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/' ,// Base API
+  baseURL: 'https://garageapp-cp16.onrender.com' ,// Base API
   headers: {
     'Content-Type': 'application/json',
   },
