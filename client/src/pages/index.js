@@ -1,31 +1,43 @@
 import { useEffect, useState } from 'react';
 import { getAllPizzas } from '../api/pizzaApi';
 import {
-  Box, Typography, Divider, Card, CardContent, Grid, Container,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Container,
+  Button,
 } from '@mui/material';
 import Image from 'next/image';
 import defaultPizzaImage from '../../public/images/defaultPizzaImage.jpg';
+import { useCart } from '../context/CartContext';
+
+const IMAGE_BASE_URL = '/assets/pizza/';
 
 const Home = () => {
   const [groupedPizzas, setGroupedPizzas] = useState({});
+  const { addToCart, getOrderData} = useCart();
+  console.log("cart data", getOrderData())
 
   useEffect(() => {
     const fetchPizzas = async () => {
       try {
         const storedData = localStorage.getItem('groupedPizzas');
-        
+
         if (storedData) {
           setGroupedPizzas(JSON.parse(storedData));
         } else {
-          const allPizzaData = await getAllPizzas();
-          const allPizzas = allPizzaData.data;
+          const response = await getAllPizzas();
+          const allPizzaData = response.data;
 
-          const pizzasByRestaurant = allPizzas.reduce((acc, pizza) => {
-            const restaurantId = pizza.restaurant_id;
-            if (!acc[restaurantId]) {
-              acc[restaurantId] = [];
+          const pizzasByRestaurant = allPizzaData.reduce((acc, pizza) => {
+            const restaurantName = pizza.restaurant_name;
+
+            if (!acc[restaurantName]) {
+              acc[restaurantName] = [];
             }
-            acc[restaurantId].push(pizza);
+            acc[restaurantName].push(pizza);
             return acc;
           }, {});
 
@@ -40,6 +52,11 @@ const Home = () => {
     fetchPizzas();
   }, []);
 
+  const handleAddToCart = (pizza) => {
+    addToCart(pizza);
+    console.log(`${pizza.name} has been added to your cart!`);
+  };
+
   return (
     <Container sx={{ padding: '40px' }}>
       <Typography variant="h3" align="center" gutterBottom color="primary">
@@ -48,44 +65,71 @@ const Home = () => {
       {Object.keys(groupedPizzas).length === 0 ? (
         <Typography variant="h6" align="center">No pizzas available.</Typography>
       ) : (
-        Object.entries(groupedPizzas).map(([restaurantId, pizzas]) => (
-          <Box key={restaurantId} sx={{ marginBottom: '40px' }}>
-            <Typography variant="h4" align="center" gutterBottom>
-              Restaurant {restaurantId}
-            </Typography>
-            <Divider sx={{ marginBottom: '20px' }} />
-            <Grid container spacing={4}>
-              {pizzas.map(pizza => (
-                <Grid item xs={12} sm={6} md={4} key={pizza.id}>
-                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Image
-                      src={defaultPizzaImage.src}
-                      alt={pizza.name || 'Default Pizza Image'}
-                      width={300}
-                      height={200}
-                      layout="responsive"
-                      onError={(e) => { e.target.src = defaultPizzaImage.src }}
-                    />
-                    <CardContent>
-                      <Typography variant="h5" gutterBottom>{pizza.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Price: ${pizza.base_price && Number(pizza.base_price).toFixed(2)}
-                      </Typography>
-                      {pizza.description && (
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                          {pizza.description}
+        <Box sx={{ marginBottom: '40px' }}>
+          <Grid container spacing={4}>
+            {Object.entries(groupedPizzas).flatMap(([restaurantName, pizzas]) =>
+              pizzas.map(pizza => {
+                const pizzaImageUrl = pizza.image_url
+                  ? `${IMAGE_BASE_URL}${pizza.image_url}`
+                  : defaultPizzaImage.src;
+
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={`${restaurantName}-${pizza.id}`}>
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Image
+                        src={defaultPizzaImage.src}
+                        alt={pizza.name || 'Default Pizza Image'}
+                        width={150}
+                        height={150}
+                        layout="fixed"
+                        style={{ borderRadius: '50%' }}
+                        onError={(e) => { e.target.src = defaultPizzaImage.src; }}
+                      />
+                      <CardContent sx={{ width: '100%', textAlign: 'center' }}>
+                        <Typography variant="h5" gutterBottom fontWeight="bold">
+                          {pizza.name}
                         </Typography>
-                      )}
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Toppings: {pizza.toppings.join(", ")}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        ))
+                        {pizza.description && (
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            {pizza.description}
+                          </Typography>
+                        )}
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                          Toppings: {pizza.toppings.join(", ")}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                          <Typography variant="h6" fontWeight="bold" color="primary">
+                            {pizza.base_price && `Birr ${Number(pizza.base_price).toFixed(2)}`}
+                          </Typography>
+                          <Button
+                            variant="contained"
+                            sx={{ bgcolor: 'orange', color: 'white' }}
+                            onClick={() => handleAddToCart(pizza)}
+                          >
+                            Add to Cart
+                          </Button>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+                          <Image
+                            src={defaultPizzaImage.src}
+                            alt={restaurantName || 'Restaurant Logo'}
+                            width={30}
+                            height={30}
+                            layout="fixed"
+                            style={{ borderRadius: '50%' }}
+                          />
+                          <Typography variant="body2" fontWeight="bold" color="text.secondary">
+                            {restaurantName}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })
+            )}
+          </Grid>
+        </Box>
       )}
     </Container>
   );

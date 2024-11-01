@@ -30,24 +30,26 @@ export const createPizzaWithToppings = async (restaurant_id, name, description, 
     }
 };
 
-// Get all pizzas for a restaurant with their toppings and image
 export const getAllPizzas = async () => {
     const query = `
-        SELECT p.id, p.name, p.description, p.base_price, p.image_url, p.restaurant_id,
+        SELECT p.id, p.name, p.description, p.base_price, p.image_url, 
+               p.restaurant_id, r.name AS restaurant_name,
                COALESCE(array_agg(t.name) FILTER (WHERE t.name IS NOT NULL), '{}') AS toppings
         FROM pizzas p
         LEFT JOIN pizza_toppings pt ON p.id = pt.pizza_id
         LEFT JOIN toppings t ON pt.topping_id = t.id
-        GROUP BY p.id;
+        LEFT JOIN restaurants r ON p.restaurant_id = r.id
+        GROUP BY p.id, r.name;
     `;
     try {
         const result = await dbClient.query(query);
-        return result.rows; // Return all pizzas with their toppings and image
+        return result.rows; // Return all pizzas with their toppings, image, and restaurant name
     } catch (err) {
         console.error('Error fetching pizzas:', err);
         throw err;
     }
 };
+
 
 // Get a pizza by ID with its image
 export const getPizzaById = async (pizzaId) => {
