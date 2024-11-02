@@ -1,4 +1,4 @@
-import Dashboard from '../../components/Dashboard';
+import Dashboard from '../../components/Admin/Dashboard';
 import withAuth from '../../utils/withAuth';
 
 // Wrap Dashboard with withAuth HOC to require the admin role

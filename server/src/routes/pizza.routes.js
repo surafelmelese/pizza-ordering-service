@@ -10,13 +10,12 @@ import {
 import { auth } from '../middleware/auth.js';
 
 const pizzaRouter = express.Router();
-const upload = multer({ dest: 'assets/pizza/' }); // Set up multer to handle file uploads
+const upload = multer({ dest: 'assets/pizza/' });
 
-// All routes are protected by auth middleware
-pizzaRouter.get('/api/pizza', getPizzas);                         // Get all pizzas for a restaurant
-pizzaRouter.post('/api/pizza', auth, upload.single('image'), createPizzaWithToppings);  // Create a new pizza with toppings and image
-pizzaRouter.get('/api/pizza/:id', auth, getPizzaById);                  // Get a pizza by ID
-pizzaRouter.put('/api/pizza/:id', auth, upload.single('image'), updatePizza);   // Update a pizza by ID, with optional image update
-pizzaRouter.delete('/api/pizza/:id', auth, deletePizza);                // Delete a pizza by ID
+pizzaRouter.get('/api/pizza', getPizzas);
+pizzaRouter.post('/api/pizza', auth, upload.single('image'), createPizzaWithToppings); 
+pizzaRouter.get('/api/pizza/:id', auth, getPizzaById);  
+pizzaRouter.put('/api/pizza/:id', auth, upload.single('image'), updatePizza);  
+pizzaRouter.delete('/api/pizza/:id', auth, deletePizza);                
 
 export default pizzaRouter;

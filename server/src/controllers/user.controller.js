@@ -14,12 +14,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 
-// Create a new user
 export const createUser = async (req, res) => {
     const { full_name, email, password, phone_number, role_name } = req.body;
     const restaurantId = req.restaurant_id;
 
-    // Validate input fields
     if (!full_name || !phone_number || !email || !password) {
         return res.status(400).json({ msg: "Not all fields have been provided!" });
     }
@@ -29,38 +27,30 @@ export const createUser = async (req, res) => {
     }
 
     try {
-        // Check if user already exists
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
             return res.status(400).json({ msg: "An account with this email already exists!" });
         }
 
-        // Fetch or create the role
         let roleId = null;
         const role = await getRoleByName(role_name);
 
         if (!role) {
-            // Role not found, create a new role
             const createdRole = await createRole(restaurantId, role_name);
-            roleId = createdRole.id; // Use the newly created role ID
+            roleId = createdRole.id;
         } else {
-            roleId = role.id; // Use existing role ID
+            roleId = role.id;
         }
 
-        // Hash the password
         const salt = bcrypt.genSaltSync();
         const hashedPassword = bcrypt.hashSync(password, salt);
 
-        // Register the new user
         const userResult = await register({ ...req.body, password: hashedPassword });
 
-        // Create the user profile
         await createProfile({ userId: userResult.userId, full_name, phone_number });
 
-        // Assign role to the user
         await assignUserRole(userResult.userId, roleId, restaurantId);
 
-        // Success response
         return res.status(201).json({ msg: "New user added successfully" });
     } catch (error) {
         console.error('Error during user creation:', error);
@@ -68,7 +58,6 @@ export const createUser = async (req, res) => {
     }
 };
 
-// Get all users
 export const getUsers = async (req, res) => {
     try {
         const results = await getAllUsers();
@@ -79,7 +68,6 @@ export const getUsers = async (req, res) => {
     }
 };
 
-// Get user by ID
 export const getUserById = async (req, res) => {
     const { user_id } = req.params;
     try {
@@ -96,12 +84,10 @@ export const getUserById = async (req, res) => {
     }
 };
 
-// Update user
 export const updateUserDetails = async (req, res) => {
     const { user_id } = req.params;
     const { full_name, phone_number } = req.body;
 
-    // Validate input fields
     if (!full_name && !phone_number) {
         return res.status(400).json({ msg: "No fields to update!" });
     }
@@ -120,7 +106,6 @@ export const updateUserDetails = async (req, res) => {
     }
 };
 
-// Delete user
 export const deleteUserById = async (req, res) => {
     const { user_id } = req.params;
 
@@ -138,31 +123,25 @@ export const deleteUserById = async (req, res) => {
     }
 };
 
-// User login
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
-    // Validate input fields
     if (!email || !password) {
         return res.status(400).json({ msg: "Both email and password are required" });
     }
 
     try {
-        // Fetch user by email
         const user = await getUserByEmail(email);
         if (!user) {
             return res.status(404).json({ msg: "No account has been registered with this email" });
         }
-        // Compare passwords
         const isMatch = bcrypt.compareSync(password.trim(), user.password.trim());
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
 
-        // Generate JWT token upon successful login
         const token = jwt.sign({ user_id: user.user_id, restaurant_id: user.restaurant_id, role_id: user.role_id, role_name: user.name }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-        // Send token and user data back to the client
         return res.json({
             token,
             user: {

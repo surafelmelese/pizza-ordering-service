@@ -1,4 +1,3 @@
-// src/utils/withAuth.js
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -9,7 +8,6 @@ const withAuth = (WrappedComponent, requiredRoles) => {
     const router = useRouter();
 
     useEffect(() => {
-      // Normalize roles to lowercase for case-insensitive comparison
       if (
         !loading &&
         (!user ||

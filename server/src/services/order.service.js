@@ -1,6 +1,5 @@
-import dbClient from "../config/db.js"; // Assuming dbClient is your PostgreSQL client
+import dbClient from "../config/db.js"; 
 
-// Create a new order with transaction handling
 export const createOrder = async (userId, restaurantId, orderData) => {
     const { status, total_price, items } = orderData;
 
@@ -8,7 +7,6 @@ export const createOrder = async (userId, restaurantId, orderData) => {
         // Begin transaction
         await dbClient.query('BEGIN');
 
-        // Insert into orders table
         const orderQuery = `
             INSERT INTO orders (user_id, restaurant_id, status, total_price)
             VALUES ($1, $2, $3, $4) RETURNING *`;
@@ -16,11 +14,9 @@ export const createOrder = async (userId, restaurantId, orderData) => {
         const orderResult = await dbClient.query(orderQuery, orderValues);
         const orderId = orderResult.rows[0].id;
 
-        // Insert into order_items and order_toppings
         for (let item of items) {
             const { pizza_id, quantity, price, toppings } = item;
 
-            // Insert order item
             const itemQuery = `
                 INSERT INTO order_items (order_id, pizza_id, quantity, price)
                 VALUES ($1, $2, $3, $4) RETURNING id`;
@@ -28,7 +24,6 @@ export const createOrder = async (userId, restaurantId, orderData) => {
             const itemResult = await dbClient.query(itemQuery, itemValues);
             const orderItemId = itemResult.rows[0].id;
 
-            // Insert toppings in batch if toppings exist
             if (toppings && toppings.length > 0) {
                 const toppingValues = toppings.map(toppingId => `(${orderItemId}, ${toppingId})`).join(',');
                 const toppingQuery = `
@@ -41,7 +36,7 @@ export const createOrder = async (userId, restaurantId, orderData) => {
         // Commit transaction
         await dbClient.query('COMMIT');
 
-        return orderResult.rows[0]; // Return the created order
+        return orderResult.rows[0];
     } catch (err) {
         // Rollback transaction in case of error
         await dbClient.query('ROLLBACK');
@@ -49,7 +44,7 @@ export const createOrder = async (userId, restaurantId, orderData) => {
     }
 };
 
-export const getAllOrders = async () => {
+export const getAllOrders = async (restaurant_id) => {
     const query = `
         SELECT o.id, oi.pizza_id, p.name AS pizza_name, oi.quantity, o.status, 
                profile.phone_number, o.created_at,
@@ -60,17 +55,20 @@ export const getAllOrders = async () => {
         JOIN pizzas p ON oi.pizza_id = p.id  -- Join pizzas table to get pizza name
         LEFT JOIN order_toppings ot ON oi.id = ot.order_item_id
         LEFT JOIN toppings t ON ot.topping_id = t.id
-        GROUP BY o.id, oi.pizza_id, p.name, oi.quantity, profile.phone_number, o.status, o.created_at;  -- Include pizza name in GROUP BY
+        WHERE o.restaurant_id = $1  -- Filter by restaurant_id in the orders table
+        GROUP BY o.id, oi.pizza_id, p.name, oi.quantity, profile.phone_number, o.status, o.created_at;
     `;
 
     try {
-        const result = await dbClient.query(query);
+        const result = await dbClient.query(query, [restaurant_id]);
         return result.rows;
     } catch (err) {
         console.error('Error fetching orders:', err);
         throw err;
     }
 };
+
+
 
 // Get order by ID
 export const getOrderById = async (orderId) => {

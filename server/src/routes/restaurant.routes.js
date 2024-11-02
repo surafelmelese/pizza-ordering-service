@@ -1,4 +1,3 @@
-//Import express router module
 import {Router} from 'express';
 import {registerRestaurant} from '../controllers/restaurant.controller.js'
 

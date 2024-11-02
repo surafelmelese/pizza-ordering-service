@@ -6,8 +6,8 @@ import {
     updateOrder,
     deleteOrder
 } from '../controllers/order.controller.js';
-import { auth } from '../middleware/auth.js'; // For authentication
-import { checkPermission } from '../middleware/permission.js'; // For permissions check
+import { auth } from '../middleware/auth.js';
+import { checkPermission } from '../middleware/permission.js';
 
 const orderRouter = express.Router();
 orderRouter.post('/api/orders', auth, checkPermission('create', 'Order'), createOrder);

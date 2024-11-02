@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import CustomerRegisterForm from '../components/CustomerRegisterForm';
-import RestaurantRegisterForm from '../components/RestaurantRegisterForm';
-import AdminRegisterForm from '../components/AdminRegisterForm'; 
+import CustomerRegisterForm from '../components/Auth/CustomerRegisterForm';
+import RestaurantRegisterForm from '../components/Auth/RestaurantRegisterForm';
+import AdminRegisterForm from '../components/Auth/AdminRegisterForm'; 
 import { Button, Container, Box, Grid } from '@mui/material';
-import AuthHeader from '../components/AuthHeader';
+import AuthHeader from '../components/Auth/AuthHeader';
 import Image from 'next/image';
 import pizzaLogo from '../../public/images/pizzaLogo.png';
 
@@ -36,8 +36,8 @@ const Register = () => {
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          height: { xs: '200px', md: '100vh' }, // Responsive height
-          mb: { xs: 2, md: 0 }, // Margin bottom for small screens
+          height: { xs: '200px', md: '100vh' },
+          mb: { xs: 2, md: 0 },
         }}
       >
         <Image

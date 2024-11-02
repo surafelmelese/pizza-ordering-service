@@ -1,6 +1,5 @@
 import * as OrderService from "../services/order.service.js";
 
-// Create a new order
 export const createOrder = async (req, res) => {
     const { orderData } = req.body;
     const userId = req.user_id;
@@ -14,17 +13,15 @@ export const createOrder = async (req, res) => {
     }
 };
 
-// Get all orders with detailed information
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await OrderService.getAllOrders();
+        const orders = await OrderService.getAllOrders(req.restaurant_id);
         res.status(200).json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
-// Get a single order by ID
 export const getOrderById = async (req, res) => {
     const { orderId } = req.params;
 
@@ -40,7 +37,6 @@ export const getOrderById = async (req, res) => {
     }
 };
 
-// Update an order
 export const updateOrder = async (req, res) => {
     const { orderId } = req.params;
     const orderData = req.body;
@@ -57,7 +53,6 @@ export const updateOrder = async (req, res) => {
     }
 };
 
-// Delete an order
 export const deleteOrder = async (req, res) => {
     const { orderId } = req.params;
 

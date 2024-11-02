@@ -3,14 +3,12 @@ import { AbilityBuilder, Ability } from '@casl/ability';
 export const defineAbilitiesFor = (user) => {
   const { can, cannot, build } = new AbilityBuilder(Ability);
 
-  // Normalize roleName by trimming and converting to lower case
   const normalizedRoleName = user.roleName.trim().toLowerCase();
   console.log(`User ID: ${user.user_id}, Restaurant ID: ${user.restaurant_id}, Role: ${user.roleName}`);
 
-  // Define abilities based on normalized role name
   switch (normalizedRoleName) {
     case 'super admin':
-      can('manage', 'all'); // Super Admins can manage everything in all restaurants
+      can('manage', 'all');
       console.log('Ability: Super Admin can manage all.');
       break;
 
@@ -63,12 +61,10 @@ export const defineAbilitiesFor = (user) => {
       throw new Error('Unknown role');
   }
 
-  // General restrictions for all roles
   cannot('delete', 'User');
   cannot('delete', 'Order');
   cannot('update', 'User');
 
-  // Log final abilities
   const finalAbilities = build().rules;
   console.log('Final Abilities:', finalAbilities);
 

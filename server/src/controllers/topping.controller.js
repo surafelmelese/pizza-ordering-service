@@ -1,6 +1,5 @@
 import * as toppingService from '../services/topping.service.js';
 
-// Get all toppings
 export const getToppings = async (req, res) => {
     try {
         const toppings = await toppingService.getAllToppings();
@@ -10,7 +9,6 @@ export const getToppings = async (req, res) => {
     }
 };
 
-// Create a new topping
 export const createTopping = async (req, res) => {
     const { name } = req.body;
     try {
@@ -21,7 +19,6 @@ export const createTopping = async (req, res) => {
     }
 };
 
-// Get a topping by ID
 export const getToppingById = async (req, res) => {
     const toppingId = req.params.id;
     try {
@@ -35,7 +32,6 @@ export const getToppingById = async (req, res) => {
     }
 };
 
-// Update a topping by ID
 export const updateTopping = async (req, res) => {
     const toppingId = req.params.id;
     const { name } = req.body;
@@ -50,7 +46,6 @@ export const updateTopping = async (req, res) => {
     }
 };
 
-// Delete a topping by ID
 export const deleteTopping = async (req, res) => {
     const toppingId = req.params.id;
     try {

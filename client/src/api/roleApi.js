@@ -1,4 +1,3 @@
-// src/api/blogApi.js
 import apiClient from '../utils/apiClient';
 
 export const getAllRoles = () => apiClient.get('/api/role');

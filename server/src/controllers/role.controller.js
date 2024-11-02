@@ -6,7 +6,6 @@ import {
     deleteRole
 } from '../services/role.service.js';
 
-// Get all roles
 export const getRoles = async (req, res) => {
     try {
         const roles = await getAllRoles();
@@ -16,7 +15,6 @@ export const getRoles = async (req, res) => {
     }
 };
 
-// Get role by ID
 export const getRole = async (req, res) => {
     const { id } = req.params;
     try {
@@ -30,7 +28,6 @@ export const getRole = async (req, res) => {
     }
 };
 
-// Create a new role
 export const createNewRole = async (req, res) => {
     const { name } = req.body;
     const {user_id, restaurant_id, role_id} = req
@@ -49,7 +46,6 @@ export const createNewRole = async (req, res) => {
     }
 };
 
-// Update a role by ID
 export const updateRoleById = async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
@@ -69,7 +65,6 @@ export const updateRoleById = async (req, res) => {
     }
 };
 
-// Delete a role by ID
 export const deleteRoleById = async (req, res) => {
     const { id } = req.params;
     try {

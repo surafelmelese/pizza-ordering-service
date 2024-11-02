@@ -1,7 +1,7 @@
-import pkg from 'pg'; // Import the default export from 'pg'
+import pkg from 'pg';
 import 'dotenv/config';
 
-const { Client } = pkg; // Destructure Client from the imported package
+const { Client } = pkg;
 
 const dbClient = new Client({
   host: process.env.DATABASE_HOST,

@@ -1,7 +1,7 @@
 
 import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext'
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {

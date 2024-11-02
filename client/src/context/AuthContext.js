@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  console.log("User", user)
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');

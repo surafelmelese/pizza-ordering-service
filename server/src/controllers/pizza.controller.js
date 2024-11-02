@@ -1,12 +1,11 @@
 import * as pizzaService from '../services/pizza.service.js';
-import { uploadImage } from '../utils/uploadImage.js'; // Assume this handles file uploads and returns a URL
+import { uploadImage } from '../utils/uploadImage.js'; 
 
-// Create a new pizza with toppings and image
 export const createPizzaWithToppings = async (req, res) => {
     const { name, description, base_price, toppings } = req.body;
-    const restaurant_id = req.restaurant_id; // Get restaurant_id from auth middleware
+    const restaurant_id = req.restaurant_id;
     try {
-        const image_url = req.file ? await uploadImage(req.file) : null; // Handle image upload
+        const image_url = req.file ? await uploadImage(req.file) : null;
         const newPizza = await pizzaService.createPizzaWithToppings(
             restaurant_id, name, description, base_price, toppings, image_url
         );
@@ -16,7 +15,6 @@ export const createPizzaWithToppings = async (req, res) => {
     }
 };
 
-// Get all pizzas for a restaurant
 export const getPizzas = async (req, res) => {
     try {
         const pizzas = await pizzaService.getAllPizzas();
@@ -26,7 +24,6 @@ export const getPizzas = async (req, res) => {
     }
 };
 
-// Get a pizza by ID
 export const getPizzaById = async (req, res) => {
     const pizzaId = req.params.id;
     try {
@@ -40,12 +37,11 @@ export const getPizzaById = async (req, res) => {
     }
 };
 
-// Update a pizza by ID, including its image
 export const updatePizza = async (req, res) => {
     const pizzaId = req.params.id;
     const { name, description, base_price } = req.body;
     try {
-        const image_url = req.file ? await uploadImage(req.file) : null; // Handle image upload
+        const image_url = req.file ? await uploadImage(req.file) : null;
         const updatedPizza = await pizzaService.updatePizza(pizzaId, name, description, base_price, image_url);
         if (!updatedPizza) {
             return res.status(404).json({ msg: 'Pizza not found' });
@@ -56,7 +52,6 @@ export const updatePizza = async (req, res) => {
     }
 };
 
-// Delete a pizza by ID
 export const deletePizza = async (req, res) => {
     const pizzaId = req.params.id;
     try {

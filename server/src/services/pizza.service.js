@@ -1,11 +1,9 @@
 import dbClient from '../config/db.js';
 
-// Create a new pizza with toppings and image
 export const createPizzaWithToppings = async (restaurant_id, name, description, base_price, toppings, image_url) => {
     try {
         await dbClient.query('BEGIN');
 
-        // Insert pizza into pizzas table, including image_url
         const pizzaQuery = `
             INSERT INTO pizzas (name, restaurant_id, description, base_price, image_url)
             VALUES ($1, $2, $3, $4, $5) RETURNING *
@@ -14,7 +12,6 @@ export const createPizzaWithToppings = async (restaurant_id, name, description, 
         const pizzaResult = await dbClient.query(pizzaQuery, pizzaValues);
         const pizzaId = pizzaResult.rows[0].id;
 
-        // Associate toppings with the pizza
         for (let toppingId of toppings) {
             const pizzaToppingQuery = 'INSERT INTO pizza_toppings (pizza_id, topping_id) VALUES ($1, $2)';
             const pizzaToppingValues = [pizzaId, toppingId];
@@ -22,7 +19,7 @@ export const createPizzaWithToppings = async (restaurant_id, name, description, 
         }
 
         await dbClient.query('COMMIT');
-        return pizzaResult.rows[0]; // Return the created pizza with toppings and image
+        return pizzaResult.rows[0];
     } catch (err) {
         await dbClient.query('ROLLBACK');
         console.error('Error creating pizza with toppings and image:', err);
@@ -43,7 +40,7 @@ export const getAllPizzas = async () => {
     `;
     try {
         const result = await dbClient.query(query);
-        return result.rows; // Return all pizzas with their toppings, image, and restaurant name
+        return result.rows; 
     } catch (err) {
         console.error('Error fetching pizzas:', err);
         throw err;

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Box, Button, TextField, Container } from '@mui/material';
 import Image from 'next/image';
 import pizzaLogo from '../../public/images/pizzaLogo.png';
-import AuthHeader from '../components/AuthHeader';
+import AuthHeader from '../components/Auth/AuthHeader';
 
 const Login = () => {
   const { login } = useAuth();
@@ -20,8 +20,8 @@ const Login = () => {
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          height: { xs: '200px', md: '100vh' }, // Responsive height
-          mb: { xs: 2, md: 0 }, // Margin bottom for small screens
+          height: { xs: '200px', md: '100vh' },
+          mb: { xs: 2, md: 0 },
         }}
       >
         <Image

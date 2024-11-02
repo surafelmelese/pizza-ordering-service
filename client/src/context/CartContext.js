@@ -6,9 +6,19 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [restaurantId, setRestaurantId] = useState(null);
 
   const addToCart = (item) => {
     setCart((prevCart) => {
+      if (prevCart.length === 0) {
+        setRestaurantId(item.restaurant_id);
+      }
+
+      if (restaurantId && restaurantId !== item.restaurant_id) {
+        alert("You can only order from one restaurant at a time.");
+        return prevCart;
+      }
+
       const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
         return prevCart.map(cartItem =>
@@ -23,10 +33,21 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (itemId) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
+    setCart(prevCart => {
+      const updatedCart = prevCart.filter(item => item.id !== itemId);
+      
+      if (updatedCart.length === 0) {
+        setRestaurantId(null);
+      }
+      
+      return updatedCart;
+    });
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    setRestaurantId(null);
+  };
 
   const getOrderData = () => {
     const items = cart.map(({ id, quantity, base_price, toppings }) => ({
@@ -41,6 +62,7 @@ export const CartProvider = ({ children }) => {
       orderData: {
         status: "Pending",
         total_price,
+        restaurant_id: restaurantId,
         items
       }
     };
