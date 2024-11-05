@@ -7,6 +7,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [restaurantId, setRestaurantId] = useState(null);
+  console.log("Cart data", cart)
 
   const addToCart = (item) => {
     setCart((prevCart) => {
@@ -49,6 +50,31 @@ export const CartProvider = ({ children }) => {
     setRestaurantId(null);
   };
 
+  const updateItemQuantity = (itemId, amount) => {
+    setCart((prevCart) => 
+      prevCart.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: item.quantity + amount } 
+          : item
+      ).filter(item => item.quantity > 0) 
+    );
+  };
+
+    const updateToppings = (pizzaId, topping, isChecked) => {
+    setCart(prevCart => 
+      prevCart.map(item => {
+        if (item.id === pizzaId) {
+          const updatedToppings = isChecked 
+            ? [...item.toppings, topping] 
+            : item.toppings.filter(t => t !== topping);
+
+          return { ...item, toppings: updatedToppings };
+        }
+        return item;
+      })
+    );
+  };
+
   const getOrderData = () => {
     const items = cart.map(({ id, quantity, base_price, toppings }) => ({
       pizza_id: id,
@@ -69,8 +95,9 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, getOrderData }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, updateItemQuantity, getOrderData, updateToppings }}>
       {children}
     </CartContext.Provider>
   );
 };
+

@@ -7,8 +7,9 @@ import {
 } from '../services/role.service.js';
 
 export const getRoles = async (req, res) => {
+    console.log("Restaurant id", req.restaurant_id)
     try {
-        const roles = await getAllRoles();
+        const roles = await getAllRoles(req.restaurant_id);
         return res.status(200).json({ data: roles });
     } catch (err) {
         return res.status(500).json({ msg: 'Database connection error', error: err.message });

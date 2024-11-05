@@ -1,7 +1,8 @@
 import dbClient from "../config/db.js"; 
 
-export const createOrder = async (userId, restaurantId, orderData) => {
-    const { status, total_price, items } = orderData;
+export const createOrder = async (userId, orderData) => {
+    const { status, restaurant_id, total_price, items } = orderData;
+    console.log("Order data", orderData)
 
     try {
         // Begin transaction
@@ -10,7 +11,7 @@ export const createOrder = async (userId, restaurantId, orderData) => {
         const orderQuery = `
             INSERT INTO orders (user_id, restaurant_id, status, total_price)
             VALUES ($1, $2, $3, $4) RETURNING *`;
-        const orderValues = [userId, restaurantId, status, total_price];
+        const orderValues = [userId, restaurant_id, status, total_price];
         const orderResult = await dbClient.query(orderQuery, orderValues);
         const orderId = orderResult.rows[0].id;
 
@@ -67,6 +68,41 @@ export const getAllOrders = async (restaurant_id) => {
         throw err;
     }
 };
+export const getAllOrdersByUser = async (user_id) => { 
+    const query = `
+                    SELECT 
+                        p.name AS pizza_name, 
+                        r.name AS restaurant_name,
+                        array_remove(array_agg(DISTINCT t.name), NULL) AS toppings, 
+                        p.base_price, 
+                        o.status
+                    FROM 
+                        orders o
+                    JOIN 
+                        order_items oi ON o.id = oi.order_id
+                    JOIN 
+                        pizzas p ON oi.pizza_id = p.id
+                    JOIN 
+                        restaurants r ON p.restaurant_id = r.id
+                    LEFT JOIN 
+                        order_toppings ot ON oi.id = ot.order_item_id
+                    LEFT JOIN 
+                        toppings t ON ot.topping_id = t.id
+                    WHERE 
+                        o.user_id = $1
+                    GROUP BY 
+                        p.name, r.name, p.base_price, o.status;
+    `;
+
+    try {
+        const result = await dbClient.query(query, [user_id]);
+        return result.rows;
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+        throw err;
+    }
+};
+
 
 
 
@@ -176,6 +212,34 @@ export const deleteOrder = async (orderId) => {
         const result = await dbClient.query(query, [orderId]);
         return result.rows[0];
     } catch (err) {
+        throw err;
+    }
+};
+
+export const updateOrderStatus = async (orderId, orderData) => {
+    const { status } = orderData;
+
+    try {
+        // Begin transaction
+        await dbClient.query('BEGIN');
+
+        const orderQuery = `
+            UPDATE orders 
+            SET status = $1 
+            WHERE id = $2 
+            RETURNING *`;
+        const orderValues = [status, orderId];
+        const orderResult = await dbClient.query(orderQuery, orderValues);
+
+        await dbClient.query('COMMIT');
+
+        if (orderResult.rowCount === 0) {
+            throw new Error(`Order with ID ${orderId} not found.`);
+        }
+
+        return orderResult.rows[0];
+    } catch (err) {
+        await dbClient.query('ROLLBACK');
         throw err;
     }
 };

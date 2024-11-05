@@ -8,7 +8,6 @@ const Home = () => {
   const [groupedPizzas, setGroupedPizzas] = useState({});
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
-  console.log("Cart data", addToCart)
 
   useEffect(() => {
     const fetchPizzas = async () => {
@@ -63,7 +62,7 @@ const Home = () => {
                   <PizzaCard 
                     pizza={pizza} 
                     restaurantName={restaurantName} 
-                    buttonType="add" 
+                    buttonLabel="Add to cart" 
                     onButtonClick={() => addToCart(pizza)} 
                   />
                 </Grid>

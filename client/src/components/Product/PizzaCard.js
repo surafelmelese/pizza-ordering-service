@@ -1,13 +1,11 @@
-import { CardContent, Typography, Button, Box, Paper } from '@mui/material';
+import { CardContent, Typography, Button, Box,Grid,FormControlLabel,Checkbox, Paper } from '@mui/material';
 import Image from 'next/image';
 import defaultPizzaImage from '../../../public/images/defaultPizzaImage.jpg';
 
-const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonType }) => {
+const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonLabel, quantityControl, isCart, onToppingChange }) => {
   const pizzaImageUrl = pizza.image_url
     ? `/assets/pizza/${pizza.image_url}`
     : defaultPizzaImage.src;
-
-  const buttonLabel = buttonType === 'add' ? 'Add to Cart' : 'Remove';
 
   return (
     <Paper 
@@ -37,10 +35,31 @@ const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonType 
             {pizza.description}
           </Typography>
         )}
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Toppings: {pizza.toppings.join(", ")}
-        </Typography>
-                {quantity && (
+        {isCart && pizza.toppings && (
+      <Box sx={{ mt: 1 }}>
+        <Grid container spacing={2}>
+          {pizza.toppings.map((topping) => (
+            <Grid item key={topping} xs={6} sm={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={pizza.toppings.includes(topping)}
+                    onChange={(e) => onToppingChange(pizza.id, topping, e.target.checked)}
+                    sx={{
+                      '&.Mui-checked': {
+                        color: 'orange', 
+                      },
+                    }}
+                  />
+                }
+                label={<Typography variant="body2">{topping}</Typography>}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    )}
+        {quantity && (
           <Box
             sx={{
               display: 'flex',
@@ -70,6 +89,7 @@ const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonType 
             {buttonLabel}
           </Button>
         </Box>
+        {quantityControl}
       </CardContent>
       <Box 
         sx={{

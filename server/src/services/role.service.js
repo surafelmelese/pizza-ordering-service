@@ -1,9 +1,10 @@
 import dbClient from '../config/db.js';
 
-export const getAllRoles = async () => {
-    const query = 'SELECT * FROM roles';
+export const getAllRoles = async (restaurant_id) => {
+    console.log(restaurant_id)
+    const query = 'SELECT DISTINCT * FROM roles WHERE restaurant_id = $1';
     try {
-        const result = await dbClient.query(query);
+        const result = await dbClient.query(query, [restaurant_id]);
         return result.rows; 
     } catch (err) {
         console.error('Error fetching roles:', err);

@@ -7,22 +7,21 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
-  Checkbox,
-  FormControlLabel,
+  Paper,
   List,
   ListItem,
   OutlinedInput,
   Select,
   MenuItem,
   FormControl,
-  IconButton 
+  IconButton,
 } from '@mui/material';
 import { getAllToppings } from '../../api/toppingApi';
-import { getAllOrders, createOrder, updateOrder, deleteOrder } from '../../api/orderApi';
+import { getAllOrders, createOrder, updateOrder, deleteOrder, updateOrderStatus } from '../../api/orderApi';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
 import GenericTable from './GenericTable';
 
 const Orders = () => {
@@ -36,7 +35,7 @@ const Orders = () => {
     quantity: '',
     phone_number: '',
     toppings: [],
-    status: 'Preparing',
+    status: '',
   });
 
   const formatDate = (dateString) => {
@@ -49,7 +48,6 @@ const Orders = () => {
       try {
         const response = await getAllOrders();
         setOrders(response.data);
-        localStorage.setItem('orders', JSON.stringify(response.data));
       } catch (error) {
         console.error('Error fetching orders', error);
       }
@@ -95,13 +93,17 @@ const Orders = () => {
     setOrderData({ ...orderData, [name]: value });
   };
 
-  const handleToppingChange = (toppingId) => {
-    setOrderData((prev) => ({
-      ...prev,
-      toppings: prev.toppings.includes(toppingId)
-        ? prev.toppings.filter((id) => id !== toppingId)
-        : [...prev.toppings, toppingId],
-    }));
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await updateOrderStatus(orderId, { status: newStatus });
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error('Error updating order status', error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -114,7 +116,6 @@ const Orders = () => {
       }
       const response = await getAllOrders();
       setOrders(response.data);
-      localStorage.setItem('orders', JSON.stringify(response.data));
       handleDialogClose();
     } catch (error) {
       console.error('Error saving order', error);
@@ -126,14 +127,19 @@ const Orders = () => {
       await deleteOrder(id);
       const response = await getAllOrders();
       setOrders(response.data);
-      localStorage.setItem('orders', JSON.stringify(response.data));
     } catch (error) {
       console.error('Error deleting order', error);
     }
   };
 
+  const getToppingNames = (toppingIds) => {
+    return toppingIds
+      .map((id) => toppings.find((topping) => topping.id === id)?.name || 'Unknown Topping')
+      .join(', ');
+  };
+
   const columns = [
-    { accessorKey: 'pizza_name', header: 'Pizza Name' }, // Changed from pizza_id to pizza_name
+    { accessorKey: 'pizza_name', header: 'Pizza Name' },
     {
       accessorKey: 'toppings',
       header: 'Toppings',
@@ -142,9 +148,9 @@ const Orders = () => {
           <IconButton sx={{ color: 'orange', padding: 0 }}>
             <VisibilityIcon />
           </IconButton>
-          <Typography 
-            variant="body2" 
-            onClick={() => handleDialogOpen(row.original)} 
+          <Typography
+            variant="body2"
+            onClick={() => handleDialogOpen(row.original)}
             sx={{ cursor: 'pointer', color: 'orange' }}
           >
             Toppings
@@ -162,36 +168,55 @@ const Orders = () => {
     {
       accessorKey: 'status',
       header: 'Status',
-      Cell: ({ row }) => (
-           <FormControl fullWidth>
-    <Select
-      name="status"
-      value={orderData.status}
-      onChange={handleChange}
-      displayEmpty
-      input={<OutlinedInput notched={false} />}
-      sx={{
-        height: '100%', 
-        '& .MuiSelect-select': {
-          padding: '10px 0',
-        },
-        '& .MuiOutlinedInput-notchedOutline': {
-          border: 'none',
-        },
-      }}
-    >
-      <MenuItem value="Preparing">Preparing</MenuItem>
-      <MenuItem value="Delivered">Delivered</MenuItem>
-      <MenuItem value="Ready">Ready</MenuItem>
-    </Select>
-  </FormControl>
-      ),
+      Cell: ({ row }) => {
+        const status = row.original.status;
+        const backgroundColor =
+          status === 'Preparing' ? 'orange' : status === 'Ready' ? 'green' : 'white';
+
+        return (
+          <Box
+            sx={{
+              backgroundColor: backgroundColor,
+              border: 'none',
+              padding: 0,
+              borderRadius: 75,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              margin: 0,
+              height: '100%',
+            }}
+          >
+            {status === 'Delivered' ? (
+              <>
+                <CheckIcon sx={{ color: 'green', fontSize: '1rem', margin: 0 }} />
+                <Typography variant="body2" sx={{ marginLeft: 0.25, padding: 0, lineHeight: '1', fontSize: '0.875rem' }}>
+                  Delivered
+                </Typography>
+              </>
+            ) : (
+              <FormControl fullWidth sx={{ padding: 0, margin: 0, border: 'none' }}>
+                <Select
+                  value={status}
+                  onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                  displayEmpty
+                  input={<OutlinedInput notched={false} sx={{ margin: 0, padding: 0, height: '100%', border: 'none' }} />}
+                >
+                  <MenuItem value="Preparing">Preparing</MenuItem>
+                  <MenuItem value="Delivered">Delivered</MenuItem>
+                  <MenuItem value="Ready">Ready</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          </Box>
+        );
+      },
     },
     {
       accessorKey: 'actions',
       header: 'Actions',
       Cell: ({ row }) => (
-       <Box display="flex" gap={1}>
+        <Box display="flex" gap={1}>
           <IconButton onClick={() => handleDialogOpen(row.original)}>
             <EditIcon />
           </IconButton>
@@ -205,74 +230,24 @@ const Orders = () => {
 
   return (
     <Box>
-      <Box sx={{ backgroundColor: '#f5f5f5'}}>
-        <GenericTable
-          title="Orders"
-          columns={columns}
-          data={orders}
-        />
+      <Box sx={{ backgroundColor: '#f5f5f5' }}>
+        <GenericTable title="Orders" columns={columns} data={orders} />
       </Box>
-
       <Dialog open={openDialog} onClose={handleDialogClose}>
-        <Typography variant="h5" gutterBottom>
-          Package
-        </Typography>
-        <DialogTitle>{selectedOrder ? 'Edit Order' : 'Add Order'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Pizza Name"
-            name="pizza_name"
-            value={orderData.pizza_name}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Quantity"
-            name="quantity"
-            type="number"
-            value={orderData.quantity}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Phone Number"
-            name="phone_number"
-            value={orderData.phone_number}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <Typography variant="subtitle1">Toppings</Typography>
-          <List>
-            {toppings.map((topping) => (
-              <ListItem key={topping.id} button onClick={() => handleToppingChange(topping.id)}>
-                <FormControlLabel
-                  control={<Checkbox checked={orderData.toppings.includes(topping.id)} />}
-                  label={topping.name}
-                />
-              </ListItem>
-            ))}
-          </List>
-          <Typography variant="subtitle1">Status</Typography>
-          <FormControl fullWidth margin="normal">
-            <Select
-              name="status"
-              value={orderData.status}
-              onChange={handleChange}
-              displayEmpty
-            >
-              <MenuItem value="Preparing">Preparing</MenuItem>
-              <MenuItem value="Delivered">Delivered</MenuItem>
-              <MenuItem value="Ready">Ready</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>{selectedOrder ? 'Update' : 'Add'}</Button>
-        </DialogActions>
+        <Paper elevation={3} sx={{ padding: 2, width: { xs: '90%', sm: '400px' }, margin: 'auto', textAlign: 'left' }}>
+          <DialogTitle sx={{ textAlign: 'center' }}>Order Detail</DialogTitle>
+          <DialogContent>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>
+              Name: {selectedOrder?.pizza_name || "Unknown Pizza"}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
+              Toppings: {selectedOrder ? getToppingNames(selectedOrder.toppings) : "Unknown"}
+            </Typography>
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+              Quantity: {selectedOrder?.quantity || 0}
+            </Typography>
+          </DialogContent>
+        </Paper>
       </Dialog>
     </Box>
   );

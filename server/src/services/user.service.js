@@ -82,7 +82,7 @@ export const getUserByEmail = async (email) => {
 
 
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (restaurant_id) => {
     const query = `
         SELECT 
             users.user_id, 
@@ -94,10 +94,11 @@ export const getAllUsers = async () => {
         LEFT JOIN profile ON users.user_id = profile.user_id
         LEFT JOIN user_roles ON users.user_id = user_roles.user_id
         LEFT JOIN roles ON user_roles.role_id = roles.id
+        WHERE user_roles.restaurant_id = $1
     `;
 
     try {
-        const result = await dbClient.query(query);
+        const result = await dbClient.query(query, [restaurant_id]);
         return result.rows;
     } catch (err) {
         throw err;

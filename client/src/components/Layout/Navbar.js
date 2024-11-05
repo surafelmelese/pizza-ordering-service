@@ -27,6 +27,7 @@ const Navbar = () => {
         {user ? (
           <>
             {user.role === 'admin' && <Button component={Link} href="/admin/users" color="inherit">Manage Users</Button>}
+            <Button component={Link} href="/order-history" color="inherit">Order</Button>
             <Button onClick={logout} color="inherit">Logout</Button>
           </>
         ) : (

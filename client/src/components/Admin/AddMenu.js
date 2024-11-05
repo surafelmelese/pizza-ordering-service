@@ -127,24 +127,38 @@ const AddMenu = () => {
                   sx={{
                     '& .MuiFormControlLabel-label': {
                       color: selectedToppings.includes(topping.id) ? 'orange' : 'inherit',
+                      fontWeight: selectedToppings.includes(topping.id) ? 'bold' : 'normal',
+                    },
+                    border: '1px solid #ddd',
+                    borderRadius: 1,
+                    padding: '8px',
+                    transition: 'background-color 0.3s ease',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 102, 0, 0.1)',
                     },
                   }}
                 />
               </Grid>
             ))}
-            <Typography
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                color: 'orange',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
-              onClick={handleAddToppingClick}
-            >
-              <AddIcon sx={{ color: 'orange', mr: 0.5 }} />
-              Add
-            </Typography>
+            <Grid item xs={12} textAlign="center" sx={{ mt: 2 }}>
+              <Typography
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  color: 'orange',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    color: 'darkorange',
+                  },
+                }}
+                onClick={handleAddToppingClick}
+              >
+                <AddIcon sx={{ color: 'orange', mr: 0.5 }} />
+                Add Topping
+              </Typography>
+            </Grid>
           </Grid>
         </FormGroup>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

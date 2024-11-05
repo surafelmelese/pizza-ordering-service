@@ -5,12 +5,14 @@ import { Button, Typography, Box, Grid, Snackbar } from '@mui/material';
 import { useRouter } from 'next/router';
 import PizzaCard from '../Product/PizzaCard';
 import { createOrder } from '../../api/orderApi';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const Cart = () => {
-  const { cart, clearCart, removeFromCart, getOrderData } = useCart();
+  const { cart, clearCart, removeFromCart, getOrderData, updateItemQuantity, updateToppings } = useCart();
   const { user } = useAuth();
   const router = useRouter();
-
+  console.log("Order data", getOrderData())
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
@@ -19,7 +21,6 @@ const Cart = () => {
       const isCustomer = user.user.role_name && user.user.role_name.toLowerCase() === 'customer';
       if (isCustomer) {
         const orderData = getOrderData();
-
         try {
           await createOrder(orderData);
           setSnackbarMessage('Order placed successfully! Please wait a few moments while we prepare it for you.');
@@ -41,6 +42,22 @@ const Cart = () => {
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 
+  const handleIncreaseQuantity = (itemId) => {
+    updateItemQuantity(itemId, 1); 
+  };
+
+  const handleDecreaseQuantity = (itemId, currentQuantity) => {
+    if (currentQuantity > 1) {
+      updateItemQuantity(itemId, -1);
+    } else {
+      removeFromCart(itemId);
+    }
+  };
+
+  const handleToppingChange = (pizzaId, topping, isChecked) => {
+    updateToppings(pizzaId, topping, isChecked);
+  };
+
   return (
     <Box sx={{ padding: '10px' }}>
       <Typography variant="h4" gutterBottom align="center" color="primary">Cart</Typography>
@@ -56,9 +73,21 @@ const Cart = () => {
               <PizzaCard 
                 pizza={item} 
                 restaurantName={item.restaurant_name} 
-                quantity={item.quantity} 
-                buttonType="remove"
+                buttonLabel="Remove"
                 onButtonClick={() => removeFromCart(item.id)}
+                quantityControl={
+                  <Box display="flex" alignItems="center" justifyContent="center" sx={{ marginTop: '10px' }}>
+                    <Button onClick={() => handleDecreaseQuantity(item.id, item.quantity)} color="primary">
+                      <RemoveIcon />
+                    </Button>
+                    <Typography variant="body1" sx={{ mx: 2 }}>{item.quantity}</Typography>
+                    <Button onClick={() => handleIncreaseQuantity(item.id)} color="primary">
+                      <AddIcon />
+                    </Button>
+                  </Box>
+                }
+                isCart={true}
+                onToppingChange={handleToppingChange} 
               />
             </Grid>
           ))}

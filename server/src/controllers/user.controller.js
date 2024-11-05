@@ -60,7 +60,7 @@ export const createUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
     try {
-        const results = await getAllUsers();
+        const results = await getAllUsers(req.restaurant_id);
         return res.status(200).json({ data: results });
     } catch (error) {
         console.error("Error fetching users:", error);

@@ -30,6 +30,7 @@ const Roles = () => {
           setRoles(JSON.parse(storedRoles));
         } else {
           const response = await getAllRoles();
+          console.log("roles data", response.data)
           setRoles(response.data.data);
           localStorage.setItem('roles', JSON.stringify(response.data.data));
         }
