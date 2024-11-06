@@ -4,7 +4,7 @@ import defaultPizzaImage from '../../../public/images/defaultPizzaImage.jpg';
 
 const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonLabel, quantityControl, isCart, onToppingChange }) => {
   const pizzaImageUrl = pizza.image_url
-    ? `/assets/pizza/${pizza.image_url}`
+    ? `https://pizza-ordering-service-1.onrender.com/${pizza.image_url}`
     : defaultPizzaImage.src;
 
   return (
@@ -19,7 +19,7 @@ const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonLabel
       }}
     >
       <Image
-        src={defaultPizzaImage.src}
+        src={pizzaImageUrl}
         alt={pizza.name || 'Pizza Image'}
         width={150}
         height={150}
@@ -100,7 +100,7 @@ const PizzaCard = ({ pizza, restaurantName, quantity, onButtonClick, buttonLabel
         }}
       >
         <Image
-          src={defaultPizzaImage.src}
+          src={pizzaImageUrl}
           alt={restaurantName || 'Restaurant Logo'}
           width={30}
           height={30}

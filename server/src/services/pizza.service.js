@@ -68,7 +68,6 @@ export const getPizzaById = async (pizzaId) => {
     }
 };
 
-// Update a pizza by ID, including its image
 export const updatePizza = async (pizzaId, name, description, base_price, image_url) => {
     const query = `
         UPDATE pizzas
@@ -79,7 +78,7 @@ export const updatePizza = async (pizzaId, name, description, base_price, image_
     const values = [name, description, base_price, image_url, pizzaId];
     try {
         const result = await dbClient.query(query, values);
-        return result.rows[0]; // Return the updated pizza
+        return result.rows[0];
     } catch (err) {
         console.error('Error updating pizza:', err);
         throw err;

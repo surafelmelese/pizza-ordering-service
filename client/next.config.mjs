@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['pizza-ordering-service-ivory.vercel.app', 'assets'], // Corrected domains
+    domains: ['pizza-ordering-service-1.onrender.com'], // Corrected domains
   },
     eslint: {
     ignoreDuringBuilds: true,
